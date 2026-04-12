@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salt Prep Master</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f4f8; padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; overflow-x: hidden; }
+        
+        /* The container that handles the 'Fake' Fullscreen */
+        #game-box { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            max-width: 600px; 
+            width: 100%; 
+            border-top: 8px solid #3498db; 
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* This class is added when the button is clicked */
+        .fullscreen-mode {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            border-radius: 0 !important;
+            z-index: 9999;
+            overflow-y: auto;
+            border-top: none !important;
+            padding: 40px !important;
+            box-sizing: border-box;
+        }
+
+        #fs-toggle {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: #7f8c8d;
+            z-index: 10000;
+        }
+        #fs-toggle:hover { background: #dfe6e9; }
+
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 1.8rem; color: #2c3e50; text-transform: lowercase; }
+        h3 { margin: 5px 0; font-weight: normal; font-size: 0.9rem; color: #7f8c8d; }
+        
+        .tracker { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; color: #34495e; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .salt-card { font-size: 1.8rem; font-weight: bold; color: #e67e22; text-align: center; margin: 20px 0; padding: 20px; background: #fffcf0; border: 2px solid #f39c12; border-radius: 15px; text-transform: lowercase; }
+        
+        .icon-container { display: flex; justify-content: space-around; gap: 15px; margin: 20px 0; align-items: flex-start; }
+        .method-icon { width: 30%; text-align: center; cursor: pointer; transition: all 0.3s ease; border: 2px solid #ddd; border-radius: 12px; padding: 10px; background: #fff; box-sizing: border-box; }
+        .method-icon:hover { transform: scale(1.05); border-color: #3498db; background: #f0f9ff; }
+        
+        .method-icon img { width: 100%; aspect-ratio: 1 / 1; object-fit: contain; background-color: #fff; border-radius: 5px; margin-bottom: 8px; pointer-events: none; }
+        .method-icon span { font-size: 0.8rem; font-weight: bold; color: #34495e; display: block; line-height: 1.2; pointer-events: none; }
+        
+        .method-icon.selected { width: 45%; cursor: default; border-color: #27ae60; background: #f0fff4; transform: scale(1.05); }
+        .method-icon.hidden { display: none; }
+
+        .hint-box { font-size: 0.9rem; color: #2980b9; background: #e1f5fe; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: none; }
+        select, .btn { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; font-size: 1rem; border: 1px solid #ccc; box-sizing: border-box; }
+        .btn { background: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #2980b9; }
+        .next-btn { background: #27ae60; margin-top: 20px; }
+        
+        #feedback { margin-top: 20px; padding: 15px; border-radius: 8px; font-weight: bold; line-height: 1.4; text-align: center; }
+        .correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .wrong { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+<div id="game-box">
+    <button id="fs-toggle" onclick="togglePseudoFullScreen()">expand game</button>
+    
+    <header>
+        <h1>salt prep master</h1>
+        <h3>designed by ms khoo xiang yun and mr jansen tan</h3>
+    </header>
+
+    <div id="game-ui">
+        <div class="tracker">
+            <span id="question-num">question: 1/10</span>
+            <span id="score-display">score: 0</span>
+        </div>
+
+        <div class="salt-card" id="salt-name">loading...</div>
+
+        <button class="btn" id="hint-btn" style="background:#95a5a6; margin-bottom:15px; font-size: 0.8rem;">need a hint? (check solubility)</button>
+        <div id="hint-text" class="hint-box"></div>
+
+        <div id="method-section">
+            <p id="method-prompt" style="text-align:center; font-weight:bold;">select the preparation method:</p>
+            <div class="icon-container" id="icon-holder">
+                <div class="method-icon" id="prec-icon" onclick="selectMethod('precipitation')">
+                    <img src="https://lh3.googleusercontent.com/d/1V4ruvCr9j11SJR1uM95yIm9w-ptbYhF2" alt="precipitation">
+                    <span>precipitation</span>
+                </div>
+                <div class="method-icon" id="titr-icon" onclick="selectMethod('titration')">
+                    <img src="https://lh3.googleusercontent.com/d/1xpjZX_d8GbhAb6OrCGo2HvPepWrnL2_s" alt="titration">
+                    <span>titration</span>
+                </div>
+                <div class="method-icon" id="exce-icon" onclick="selectMethod('excess')">
+                    <img src="https://lh3.googleusercontent.com/d/1iIWpBGq3FO1fRsdD0GiGTzAPpd0c_hIE" alt="excess solid">
+                    <span>excess solid to acid</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="reagent-section" style="display:none;">
+            <p style="text-align:center; font-weight:bold;">select two reagents:</p>
+            <select id="r1"></select>
+            <select id="r2"></select>
+            <button class="btn" onclick="submitReagents()">confirm reagents</button>
+        </div>
+
+        <div id="feedback" style="display:none;"></div>
+        <button id="next-q-btn" class="btn next-btn" style="display:none;" onclick="setupNextQuestion()">continue</button>
+    </div>
+
+    <div id="summary-section" style="display:none; text-align:center;">
+        <h2>challenge complete!</h2>
+        <div id="final-stats" style="font-size: 1.2rem; margin: 20px 0;"></div>
+        <div id="diagnostic" style="color:#e67e22; font-weight:bold; margin-bottom:20px;"></div>
+        <button class="btn" onclick="location.reload()">try again?</button>
+    </div>
+</div>
+
+<script>
+    // --- PSEUDO FULLSCREEN LOGIC ---
+    function togglePseudoFullScreen() {
+        const gameBox = document.getElementById('game-box');
+        const btn = document.getElementById('fs-toggle');
+        
+        if (gameBox.classList.contains('fullscreen-mode')) {
+            gameBox.classList.remove('fullscreen-mode');
+            btn.innerText = "expand game";
+            document.body.style.overflow = "auto";
+        } else {
+            gameBox.classList.add('fullscreen-mode');
+            btn.innerText = "shrink game";
+            document.body.style.overflow = "hidden";
+        }
+    }
+
+    // --- AUDIO ENGINE ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'correct') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, now); 
+            osc.frequency.exponentialRampToValueAtTime(1320, now + 0.1); 
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+            osc.start(now);
+            osc.stop(now + 0.4);
+        } else {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(220, now); 
+            osc.frequency.linearRampToValueAtTime(110, now + 0.5); 
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        }
+    }
+
+    const reagentOptions = [
+        "-- select reagent --", "hydrochloric acid", "sulfuric acid", "nitric acid", "ethanoic acid", "phosphoric acid",
+        "sodium hydroxide", "potassium hydroxide", "ammonia solution", "sodium carbonate", "potassium carbonate",
+        "magnesium ribbon", "magnesium oxide", "magnesium carbonate", "zinc metal", "zinc oxide", "zinc carbonate",
+        "copper(II) oxide", "copper(II) carbonate", "copper(II) hydroxide", "iron filings", "iron(II) oxide", "iron(II) carbonate",
+        "aluminum oxide", "lead(II) nitrate", "barium nitrate", "silver nitrate", "calcium nitrate", "copper(II) nitrate",
+        "sodium sulfate", "magnesium sulfate", "sodium chloride", "sodium bromide", "potassium iodide", "sodium iodide", "potassium sulfate"
+    ];
+
+    const saltsPool = [
+        { name: "sodium chloride", method: "titration", r1: ["hydrochloric acid"], r2: ["sodium hydroxide", "sodium carbonate"], sol: "soluble (SPA).", reason: "sodium salts are SPA salts; titration with an alkali or soluble carbonate is used." },
+        { name: "potassium sulfate", method: "titration", r1: ["sulfuric acid"], r2: ["potassium hydroxide", "potassium carbonate"], sol: "soluble (SPA).", reason: "potassium salts are SPA salts; titration ensures exact neutralization." },
+        { name: "ammonium nitrate", method: "titration", r1: ["nitric acid"], r2: ["ammonia solution"], sol: "soluble (SPA).", reason: "ammonium salts are SPA salts; use titration with ammonia solution." },
+        { name: "sodium sulfate", method: "titration", r1: ["sulfuric acid"], r2: ["sodium hydroxide", "sodium carbonate"], sol: "soluble (SPA).", reason: "SPA salts require titration since all reactants are soluble." },
+        { name: "potassium chloride", method: "titration", r1: ["hydrochloric acid"], r2: ["potassium hydroxide", "potassium carbonate"], sol: "soluble (SPA).", reason: "SPA salt requires titration." },
+        { name: "ammonium sulfate", method: "titration", r1: ["sulfuric acid"], r2: ["ammonia solution"], sol: "soluble (SPA).", reason: "ammonia is a soluble base; titration is needed for SPA salts." },
+        { name: "sodium nitrate", method: "titration", r1: ["nitric acid"], r2: ["sodium hydroxide", "sodium carbonate"], sol: "soluble (SPA).", reason: "all nitrates and all sodium salts are soluble." },
+        { name: "potassium ethanoate", method: "titration", r1: ["ethanoic acid"], r2: ["potassium hydroxide", "potassium carbonate"], sol: "soluble (SPA).", reason: "ethanoic acid is used to make ethanoate salts via titration." },
+        { name: "ammonium chloride", method: "titration", r1: ["hydrochloric acid"], r2: ["ammonia solution"], sol: "soluble (SPA).", reason: "ammonium salts are prepared by titration." },
+        { name: "sodium phosphate", method: "titration", r1: ["phosphoric acid"], r2: ["sodium hydroxide"], sol: "soluble (SPA).", reason: "phosphoric acid is used to make phosphate salts." },
+        { name: "copper(II) sulfate", method: "excess", r1: ["sulfuric acid"], r2: ["copper(II) oxide", "copper(II) carbonate", "copper(II) hydroxide"], sol: "soluble (non-SPA).", reason: "copper is unreactive; use an insoluble base or carbonate with acid." },
+        { name: "magnesium chloride", method: "excess", r1: ["hydrochloric acid"], r2: ["magnesium ribbon", "magnesium oxide", "magnesium carbonate"], sol: "soluble (non-SPA).", reason: "magnesium is reactive; metal, oxide, or carbonate can be used." },
+        { name: "zinc nitrate", method: "excess", r1: ["nitric acid"], r2: ["zinc metal", "zinc oxide", "zinc carbonate"], sol: "soluble (non-SPA).", reason: "zinc salts are non-SPA; use excess solid to ensure acid is used up." },
+        { name: "calcium chloride", method: "excess", r1: ["hydrochloric acid"], r2: ["calcium carbonate"], sol: "soluble (non-SPA).", reason: "calcium carbonate (marble) is commonly reacted with hydrochloric acid." },
+        { name: "iron(II) sulfate", method: "excess", r1: ["sulfuric acid"], r2: ["iron filings", "iron(II) oxide", "iron(II) carbonate"], sol: "soluble (non-SPA).", reason: "iron reacts with acid to form iron(II) salts." },
+        { name: "magnesium nitrate", method: "excess", r1: ["nitric acid"], r2: ["magnesium ribbon", "magnesium oxide", "magnesium carbonate"], sol: "soluble (non-SPA).", reason: "excess base/metal/carbonate added to nitric acid." },
+        { name: "zinc sulfate", method: "excess", r1: ["sulfuric acid"], r2: ["zinc metal", "zinc oxide", "zinc carbonate"], sol: "soluble (non-SPA).", reason: "standard method for soluble sulfates of reactive metals." },
+        { name: "copper(II) nitrate", method: "excess", r1: ["nitric acid"], r2: ["copper(II) oxide", "copper(II) carbonate"], sol: "soluble (non-SPA).", reason: "nitric acid reacted with insoluble copper(II) solid." },
+        { name: "aluminum chloride", method: "excess", r1: ["hydrochloric acid"], r2: ["aluminum oxide"], sol: "soluble (non-SPA).", reason: "aluminum oxide reacts with hydrochloric acid." },
+        { name: "iron(II) chloride", method: "excess", r1: ["hydrochloric acid"], r2: ["iron filings", "iron(II) oxide", "iron(II) carbonate"], sol: "soluble (non-SPA).", reason: "iron, iron(II) oxide, or iron(II) carbonate can react with hydrochloric acid." },
+        { name: "barium sulfate", method: "precipitation", r1: ["barium nitrate"], r2: ["sodium sulfate", "potassium sulfate", "sulfuric acid"], sol: "insoluble.", reason: "sulfates are soluble except for barium, calcium, and lead(II)." },
+        { name: "lead(II) iodide", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["potassium iodide", "sodium iodide"], sol: "insoluble.", reason: "lead(II) iodide forms a bright yellow precipitate." },
+        { name: "silver chloride", method: "precipitation", r1: ["silver nitrate"], r2: ["sodium chloride", "hydrochloric acid"], sol: "insoluble.", reason: "chlorides are soluble except for silver and lead(II)." },
+        { name: "calcium carbonate", method: "precipitation", r1: ["calcium nitrate"], r2: ["sodium carbonate", "potassium carbonate"], sol: "insoluble.", reason: "most carbonates are insoluble; use two soluble solutions." },
+        { name: "lead(II) sulfate", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["sodium sulfate", "magnesium sulfate", "sulfuric acid"], sol: "insoluble.", reason: "lead(II) sulfate is a common white precipitate." },
+        { name: "barium carbonate", method: "precipitation", r1: ["barium nitrate"], r2: ["sodium carbonate", "potassium carbonate"], sol: "insoluble.", reason: "barium carbonate is insoluble; requires precipitation." },
+        { name: "silver bromide", method: "precipitation", r1: ["silver nitrate"], r2: ["sodium bromide"], sol: "insoluble.", reason: "halides of silver are insoluble." },
+        { name: "calcium sulfate", method: "precipitation", r1: ["calcium nitrate"], r2: ["sodium sulfate", "potassium sulfate"], sol: "insoluble.", reason: "calcium sulfate is sparingly soluble/insoluble." },
+        { name: "lead(II) chloride", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["sodium chloride", "hydrochloric acid"], sol: "insoluble.", reason: "chlorides of lead(II) are insoluble in cold water." },
+        { name: "copper(II) carbonate", method: "precipitation", r1: ["copper(II) nitrate"], r2: ["sodium carbonate", "potassium carbonate"], sol: "insoluble.", reason: "most carbonates (except SPA) are insoluble." }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let activeSalt;
+    let errors = { titration: 0, precipitation: 0, excess: 0 };
+    let questionList = [];
+
+    function init() {
+        const sel1 = document.getElementById('r1');
+        const sel2 = document.getElementById('r2');
+        reagentOptions.forEach(opt => {
+            sel1.add(new Option(opt, opt));
+            sel2.add(new Option(opt, opt));
+        });
+        
+        const titraSet = saltsPool.filter(s => s.method === 'titration').sort(() => Math.random() - 0.5).slice(0, 3);
+        const excessSet = saltsPool.filter(s => s.method === 'excess').sort(() => Math.random() - 0.5).slice(0, 3);
+        const precipSet = saltsPool.filter(s => s.method === 'precipitation').sort(() => Math.random() - 0.5).slice(0, 4);
+        
+        questionList = [...titraSet, ...excessSet, ...precipSet].sort(() => Math.random() - 0.5);
+        setupNextQuestion();
+    }
+
+    function setupNextQuestion() {
+        if (currentQuestion >= 10) {
+            showEndScreen();
+            return;
+        }
+        activeSalt = questionList[currentQuestion];
+        currentQuestion++;
+        
+        document.getElementById('question-num').innerText = `question: ${currentQuestion}/10`;
+        document.getElementById('salt-name').innerText = activeSalt.name;
+        document.getElementById('method-section').style.display = 'block';
+        document.getElementById('method-prompt').innerText = "select the preparation method:";
+        document.getElementById('reagent-section').style.display = 'none';
+        document.getElementById('feedback').style.display = 'none';
+        document.getElementById('next-q-btn').style.display = 'none';
+        document.getElementById('hint-text').style.display = 'none';
+        document.getElementById('r1').selectedIndex = 0;
+        document.getElementById('r2').selectedIndex = 0;
+        
+        const icons = document.querySelectorAll('.method-icon');
+        icons.forEach(icon => icon.className = 'method-icon');
+        document.getElementById('icon-holder').style.justifyContent = 'space-around';
+    }
+
+    function selectMethod(method) {
+        if (document.getElementById('feedback').style.display === 'block') return;
+
+        if (method === activeSalt.method) {
+            playSound('correct');
+            const icons = document.querySelectorAll('.method-icon');
+            icons.forEach(icon => {
+                if (!icon.id.includes(method.substring(0,4))) {
+                    icon.classList.add('hidden');
+                } else {
+                    icon.classList.add('selected');
+                }
+            });
+            document.getElementById('icon-holder').style.justifyContent = 'center';
+            document.getElementById('method-prompt').innerText = "";
+            document.getElementById('reagent-section').style.display = 'block';
+            showFeedback("correct method! now pick the reagents.", "correct");
+        } else {
+            playSound('wrong');
+            errors[activeSalt.method]++;
+            handleWrongStep(`incorrect method. the correct method for ${activeSalt.name} is ${activeSalt.method}. <br><br>reason: ${activeSalt.reason}`);
+        }
+    }
+
+    function submitReagents() {
+        const val1 = document.getElementById('r1').value;
+        const val2 = document.getElementById('r2').value;
+        const isCorrect = (activeSalt.r1.includes(val1) && activeSalt.r2.includes(val2)) || 
+                          (activeSalt.r1.includes(val2) && activeSalt.r2.includes(val1));
+
+        if (isCorrect) {
+            playSound('correct');
+            score++;
+            document.getElementById('score-display').innerText = `score: ${score}`;
+            showFeedback("well done! those reagents will successfully produce the salt.", "correct");
+            document.getElementById('reagent-section').style.display = 'none';
+            document.getElementById('next-q-btn').style.display = 'block';
+        } else {
+            playSound('wrong');
+            handleWrongStep(`wrong reagents. for ${activeSalt.name}, you should use ${activeSalt.r1[0]} and one of its appropriate counterparts.`);
+        }
+    }
+
+    function handleWrongStep(msg) {
+        showFeedback(msg, "wrong");
+        document.getElementById('reagent-section').style.display = 'none';
+        document.getElementById('next-q-btn').style.display = 'block';
+    }
+
+    function showFeedback(msg, type) {
+        const f = document.getElementById('feedback');
+        f.innerHTML = msg;
+        f.className = type;
+        f.style.display = 'block';
+    }
+
+    document.getElementById('hint-btn').onclick = () => {
+        const h = document.getElementById('hint-text');
+        h.innerHTML = `<strong>hint:</strong> ${activeSalt.sol}`;
+        h.style.display = 'block';
+    };
+
+    function showEndScreen() {
+        document.getElementById('game-ui').style.display = 'none';
+        document.getElementById('summary-section').style.display = 'block';
+        document.getElementById('final-stats').innerText = `your final score: ${score} / 10`;
+        let focusArea = "you have a solid grasp of all methods!";
+        const maxError = Math.max(errors.titration, errors.precipitation, errors.excess);
+        if (maxError > 0) {
+            if (errors.precipitation === maxError) focusArea = "review your solubility rules for insoluble salts (precipitation).";
+            else if (errors.titration === maxError) focusArea = "remember that SPA salts (sodium, potassium, ammonium) always use titration.";
+            else focusArea = "review the excess solid method for soluble non-SPA salts.";
+        }
+        document.getElementById('diagnostic').innerText = `advice: ${focusArea}`;
+    }
+
+    init();
+</script>
+</body>
+</html>
