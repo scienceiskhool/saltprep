@@ -293,6 +293,11 @@
 
     let gameMode = 'classic', currentIdx = 0, score = 0, timeLeft = 60, timerId = null, activeSalt, isMusicEnabled = false, step = 1;
 
+    // Music Elements
+    const musicClassic = document.getElementById('bg-music-classic');
+    const musicSpeed = document.getElementById('bg-music-speed');
+    const musicToggleBtn = document.getElementById('music-toggle');
+
     function toggleHint() {
         const box = document.getElementById('hint-box');
         if (box.style.display === 'block') {
@@ -311,10 +316,40 @@
         }
     }
 
+    function handleMusicToggleRequest() {
+        isMusicEnabled = !isMusicEnabled;
+        updateMusic();
+    }
+
+    function updateMusic() {
+        // Pause both first
+        musicClassic.pause();
+        musicSpeed.pause();
+
+        if (isMusicEnabled) {
+            musicToggleBtn.innerText = "🔊 Music: On";
+            const target = (gameMode === 'speed') ? musicSpeed : musicClassic;
+            
+            // Try playing with a promise to catch browser blocks
+            const playPromise = target.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {
+                    console.log("Autoplay blocked by browser. Music will start on next click.");
+                });
+            }
+        } else {
+            musicToggleBtn.innerText = "🔇 Music: Off";
+        }
+    }
+
     function startChallenge(mode) {
         gameMode = mode; currentIdx = 0; score = 0;
         document.getElementById('home-screen').style.display = 'none';
         document.getElementById('game-ui').style.display = 'block';
+        
+        // Update music for the mode
+        updateMusic();
+
         if (mode === 'speed') {
             document.getElementById('timer-wrapper').style.display = 'block';
             startTimer();
@@ -394,15 +429,27 @@
         document.getElementById('game-ui').style.display = 'none';
         document.getElementById('summary-section').style.display = 'block';
         document.getElementById('final-stats').innerText = `${score} points`;
+        // Stop music at end screen if preferred
+        musicClassic.pause();
+        musicSpeed.pause();
     }
 
     function resetGame() {
         document.getElementById('summary-section').style.display = 'none';
         document.getElementById('home-screen').style.display = 'block';
+        updateMusic();
     }
 
-    function handleMusicToggleRequest() { /* Simplified */ }
     function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+
+    // Click anywhere to resume audio context (needed for some browsers)
+    document.addEventListener('click', () => {
+        if (isMusicEnabled) {
+             const target = (gameMode === 'speed') ? musicSpeed : musicClassic;
+             if (target.paused) target.play().catch(()=>{});
+        }
+    }, { once: false });
+
 </script>
 </body>
 </html>
