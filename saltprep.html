@@ -64,6 +64,20 @@
             border: 2px solid #fee2e2; display: inline-block;
         }
 
+        /* Speed Blitz Feedback Overlay */
+        #speed-feedback-overlay {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 1000; pointer-events: none; text-align: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .blitz-feedback {
+            font-size: 5rem; font-weight: 900; animation: bounceOut 0.8s ease-out forwards;
+            text-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        .blitz-correct { color: var(--success); }
+        .blitz-wrong { color: var(--danger); }
+        .blitz-info { font-size: 1.2rem; color: var(--text); background: white; padding: 5px 15px; border-radius: 12px; margin-top: -10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
         /* Timer Bar */
         .timer-container { width: 100%; height: 16px; background: #eee; border-radius: 10px; margin: 20px 0; overflow: hidden; display: none; border: 2px solid #ddd; }
         #timer-bar { width: 100%; height: 100%; background: linear-gradient(90deg, var(--success), #2ecc71); transition: width 0.1s linear; }
@@ -90,7 +104,6 @@
         }
         .salt-formula { display: block; font-size: 0.8em; opacity: 0.8; color: var(--text); margin-top: 5px; }
         
-        /* Hint Section */
         #hint-box {
             background: #fcf3cf; border: 2px solid #f1c40f; border-radius: 16px;
             padding: 15px; margin: 15px 0; display: none; text-align: center;
@@ -139,12 +152,28 @@
         .correct { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
         .wrong { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
 
+        #error-summary {
+            margin: 25px 0; text-align: left; background: #fff; border-radius: 20px; 
+            padding: 20px; border: 2px solid #f1f3f5; max-height: 300px; overflow-y: auto;
+        }
+        .error-item { border-bottom: 1px solid #eee; padding: 12px 0; font-size: 0.95rem; }
+        .error-item:last-child { border: none; }
+        .error-label { font-weight: 800; color: var(--danger); display: block; margin-bottom: 4px; }
+        .error-fix { font-weight: 600; color: var(--success); }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounceOut {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.2); }
+            70% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
 
         @media (max-width: 768px) {
             .master-step-layout { grid-template-columns: 1fr; gap: 20px; }
             .selected-method-preview { aspect-ratio: auto; flex-direction: row; padding: 15px 25px; max-width: 100%; height: auto; }
             .selected-method-preview img { width: 70px; max-width: 70px; }
+            .menu-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -153,6 +182,8 @@
 <div id="game-container">
     <audio id="bg-music-classic" loop><source src="Sky Coins.mp3" type="audio/mpeg"></audio>
     <audio id="bg-music-speed" loop><source src="Quiz Quest Groove 2.mp3" type="audio/mpeg"></audio>
+
+    <div id="speed-feedback-overlay"></div>
 
     <div id="game-box">
         <div class="control-bar">
@@ -239,7 +270,7 @@
                     <label style="font-size: 0.8rem; font-weight: 700; color: #95a5a6; display: block; margin-bottom: 4px;">Reagent 2:</label>
                     <select id="r2" class="btn" style="background:white; color:black; border:2px solid #ddd; margin-top: 0; margin-bottom: 25px;"></select>
                     
-                    <button class="btn btn-primary" onclick="submitReagents()">Confirm Reagents</button>
+                    <button id="confirm-reagents-btn" class="btn btn-primary" onclick="submitReagents()">Confirm Reagents</button>
                 </div>
             </div>
 
@@ -252,6 +283,12 @@
                 <h2 id="summary-title" style="margin:0;">Challenge Complete!</h2>
             </div>
             <div id="final-stats" style="font-size: 2.2rem; margin: 10px 0; font-weight: 900; color: var(--text);"></div>
+            
+            <div id="error-summary-container">
+                <h3 style="margin-bottom:10px;">Mistake Log</h3>
+                <div id="error-summary"></div>
+            </div>
+
             <button class="btn btn-primary" onclick="resetGame()">Back to Main Menu</button>
         </div>
     </div>
@@ -271,32 +308,42 @@
         { name: "barium sulfate", formula: "BaSO₄", method: "precipitation", r1: ["barium nitrate"], r2: ["sodium sulfate", "sulfuric acid"], type: "insoluble" },
         { name: "lead(II) iodide", formula: "PbI₂", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["potassium iodide"], type: "insoluble" },
         { name: "copper(II) sulfate", formula: "CuSO₄", method: "excess solid to acid", r1: ["sulfuric acid"], r2: ["copper(II) oxide", "copper(II) carbonate"], type: "soluble non-SPA" },
-        { name: "magnesium chloride", formula: "MgCl₂", method: "excess solid to acid", r1: ["hydrochloric acid"], r2: ["magnesium ribbon", "magnesium oxide"], type: "soluble non-SPA" },
-        { name: "silver chloride", formula: "AgCl", method: "precipitation", r1: ["silver nitrate"], r2: ["sodium chloride"], type: "insoluble" },
+        { name: "magnesium chloride", formula: "MgCl₂", method: "excess solid to acid", r1: ["hydrochloric acid"], r2: ["magnesium ribbon", "magnesium oxide", "magnesium carbonate"], type: "soluble non-SPA" },
+        { name: "silver chloride", formula: "AgCl", method: "precipitation", r1: ["silver nitrate"], r2: ["sodium chloride", "hydrochloric acid"], type: "insoluble" },
         { name: "zinc nitrate", formula: "Zn(NO₃)₂", method: "excess solid to acid", r1: ["nitric acid"], r2: ["zinc metal", "zinc oxide"], type: "soluble non-SPA" },
-        { name: "calcium carbonate", formula: "CaCO₃", method: "precipitation", r1: ["calcium nitrate"], r2: ["sodium carbonate"], type: "insoluble" },
+        { name: "calcium carbonate", formula: "CaCO₃", method: "precipitation", r1: ["calcium nitrate"], r2: ["sodium carbonate", "potassium carbonate"], type: "insoluble" },
         { name: "sodium nitrate", formula: "NaNO₃", method: "titration", r1: ["nitric acid"], r2: ["sodium hydroxide"], type: "SPA" },
-        { name: "lead(II) sulfate", formula: "PbSO₄", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["magnesium sulfate"], type: "insoluble" },
+        { name: "lead(II) sulfate", formula: "PbSO₄", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["sulfuric acid", "sodium sulfate"], type: "insoluble" },
         { name: "potassium chloride", formula: "KCl", method: "titration", r1: ["hydrochloric acid"], r2: ["potassium hydroxide", "potassium carbonate"], type: "SPA" },
         { name: "ammonium sulfate", formula: "(NH₄)₂SO₄", method: "titration", r1: ["sulfuric acid"], r2: ["ammonia solution"], type: "SPA" },
-        { name: "zinc sulfate", formula: "ZnSO₄", method: "excess solid to acid", r1: ["zinc metal", "zinc oxide", "zinc carbonate"], type: "soluble non-SPA" },
+        { name: "zinc sulfate", formula: "ZnSO₄", method: "excess solid to acid", r1: ["sulfuric acid"], r2: ["zinc metal", "zinc oxide", "zinc carbonate"], type: "soluble non-SPA" },
         { name: "magnesium nitrate", formula: "Mg(NO₃)₂", method: "excess solid to acid", r1: ["nitric acid"], r2: ["magnesium ribbon", "magnesium oxide", "magnesium carbonate"], type: "soluble non-SPA" },
         { name: "calcium nitrate", formula: "Ca(NO₃)₂", method: "excess solid to acid", r1: ["nitric acid"], r2: ["calcium carbonate"], type: "soluble non-SPA" },
         { name: "silver nitrate", formula: "AgNO₃", method: "excess solid to acid", r1: ["nitric acid"], r2: ["silver oxide"], type: "soluble non-SPA" },
         { name: "barium nitrate", formula: "Ba(NO₃)₂", method: "excess solid to acid", r1: ["nitric acid"], r2: ["barium carbonate"], type: "soluble non-SPA" },
-        { name: "calcium sulfate", formula: "CaSO₄", method: "precipitation", r1: ["calcium nitrate"], r2: ["sodium sulfate"], type: "insoluble" },
+        { name: "calcium sulfate", formula: "CaSO₄", method: "precipitation", r1: ["calcium nitrate"], r2: ["sodium sulfate", "potassium sulfate", "sulfuric acid"], type: "insoluble" },
         { name: "silver bromide", formula: "AgBr", method: "precipitation", r1: ["silver nitrate"], r2: ["sodium bromide"], type: "insoluble" },
-        { name: "lead(II) chloride", formula: "PbCl₂", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["sodium chloride"], type: "insoluble" }
+        { name: "lead(II) chloride", formula: "PbCl₂", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["sodium chloride", "hydrochloric acid"], type: "insoluble" }
     ];
 
-    const reagentOptions = ["-- select reagent --", "hydrochloric acid", "sulfuric acid", "nitric acid", "sodium hydroxide", "potassium hydroxide", "ammonia solution", "sodium carbonate", "potassium carbonate", "magnesium ribbon", "magnesium oxide", "zinc metal", "zinc oxide", "zinc carbonate", "copper(II) oxide", "copper(II) carbonate", "calcium carbonate", "silver oxide", "barium carbonate", "lead(II) nitrate", "barium nitrate", "silver nitrate", "calcium nitrate", "sodium sulfate", "magnesium sulfate", "sodium chloride", "sodium bromide", "potassium iodide"];
+    const reagentOptions = ["-- select reagent --", "hydrochloric acid", "sulfuric acid", "nitric acid", "sodium hydroxide", "potassium hydroxide", "ammonia solution", "sodium carbonate", "potassium carbonate", "magnesium ribbon", "magnesium oxide", "magnesium carbonate", "zinc metal", "zinc oxide", "zinc carbonate", "copper(II) oxide", "copper(II) carbonate", "calcium carbonate", "silver oxide", "barium carbonate", "lead(II) nitrate", "barium nitrate", "silver nitrate", "calcium nitrate", "sodium sulfate", "magnesium sulfate", "sodium chloride", "sodium bromide", "potassium iodide"];
 
     let gameMode = 'classic', currentIdx = 0, score = 0, timeLeft = 60, timerId = null, activeSalt, isMusicEnabled = false, step = 1;
+    let mistakes = [];
 
-    // Music Elements
+    let highScores = {
+        classic: parseInt(localStorage.getItem('saltMaster_classic_high')) || 0,
+        speed: parseInt(localStorage.getItem('saltMaster_speed_high')) || 0
+    };
+
     const musicClassic = document.getElementById('bg-music-classic');
     const musicSpeed = document.getElementById('bg-music-speed');
     const musicToggleBtn = document.getElementById('music-toggle');
+
+    function updateHighScoreDisplay() {
+        document.getElementById('classic-high-score').innerText = `High Score: ${highScores.classic}`;
+        document.getElementById('speed-high-score').innerText = `High Score: ${highScores.speed}`;
+    }
 
     function toggleHint() {
         const box = document.getElementById('hint-box');
@@ -322,32 +369,51 @@
     }
 
     function updateMusic() {
-        // Pause both first
         musicClassic.pause();
         musicSpeed.pause();
 
         if (isMusicEnabled) {
             musicToggleBtn.innerText = "🔊 Music: On";
             const target = (gameMode === 'speed') ? musicSpeed : musicClassic;
-            
-            // Try playing with a promise to catch browser blocks
             const playPromise = target.play();
             if (playPromise !== undefined) {
-                playPromise.catch(() => {
-                    console.log("Autoplay blocked by browser. Music will start on next click.");
-                });
+                playPromise.catch(() => console.log("Music blocked."));
             }
         } else {
             musicToggleBtn.innerText = "🔇 Music: Off";
         }
     }
 
+    function showBlitzFeedback(isCorrect, userChoice = "") {
+        const overlay = document.getElementById('speed-feedback-overlay');
+        const feedback = document.createElement('div');
+        
+        let content = '';
+        if (isCorrect) {
+            content = `<div class="blitz-feedback blitz-correct">✔ +10</div>`;
+        } else {
+            content = `<div class="blitz-feedback blitz-wrong">✘</div>
+                       <div class="blitz-info">Answer: ${activeSalt.method}</div>`;
+            mistakes.push({
+                salt: activeSalt.name,
+                wrong: userChoice,
+                correct: activeSalt.method
+            });
+        }
+        
+        feedback.innerHTML = content;
+        overlay.innerHTML = '';
+        overlay.appendChild(feedback);
+        
+        setTimeout(() => { feedback.remove(); }, 800);
+    }
+
     function startChallenge(mode) {
-        gameMode = mode; currentIdx = 0; score = 0;
+        gameMode = mode; currentIdx = 0; score = 0; mistakes = [];
         document.getElementById('home-screen').style.display = 'none';
         document.getElementById('game-ui').style.display = 'block';
+        document.getElementById('score-display').innerText = `Score: 0`;
         
-        // Update music for the mode
         updateMusic();
 
         if (mode === 'speed') {
@@ -371,12 +437,21 @@
         timerId = setInterval(() => {
             timeLeft -= 0.1;
             document.getElementById('timer-bar').style.width = (timeLeft / 60) * 100 + "%";
-            if (timeLeft <= 0) { clearInterval(timerId); showEndScreen(); }
+            if (timeLeft <= 0) { 
+                clearInterval(timerId); 
+                showEndScreen(); 
+            }
         }, 100);
     }
 
     function nextQuestion() {
         if (gameMode === 'classic' && currentIdx >= 10) { showEndScreen(); return; }
+        
+        // Reset dropdowns to first option
+        document.getElementById('r1').selectedIndex = 0;
+        document.getElementById('r2').selectedIndex = 0;
+        document.getElementById('confirm-reagents-btn').disabled = false;
+
         activeSalt = saltsPool[Math.floor(Math.random() * saltsPool.length)];
         currentIdx++; step = 1;
         document.getElementById('stat-left').innerText = gameMode === 'classic' ? `Question: ${currentIdx}/10` : "Speed Blitz!";
@@ -393,6 +468,7 @@
         if (method === activeSalt.method) {
             if (gameMode === 'speed') {
                 score += 10; document.getElementById('score-display').innerText = `Score: ${score}`;
+                showBlitzFeedback(true);
                 nextQuestion();
             } else {
                 step = 2;
@@ -403,12 +479,23 @@
                 document.getElementById('hint-box').style.display = 'none';
             }
         } else {
-            if (gameMode === 'speed') nextQuestion();
-            else {
+            if (gameMode === 'speed') {
+                showBlitzFeedback(false, method);
+                nextQuestion();
+            } else {
+                mistakes.push({
+                    salt: activeSalt.name,
+                    wrong: method,
+                    correct: activeSalt.method
+                });
                 document.getElementById('feedback').innerText = `Wrong. Correct: ${activeSalt.method}`;
                 document.getElementById('feedback').className = 'wrong';
                 document.getElementById('feedback').style.display = 'block';
-                document.getElementById('next-btn').style.display = 'block';
+                
+                // For a wrong method choice in Classic, show it for 2s then move on
+                setTimeout(() => {
+                    nextQuestion();
+                }, 2000);
             }
         }
     }
@@ -417,19 +504,54 @@
         const v1 = document.getElementById('r1').value, v2 = document.getElementById('r2').value;
         const isCorrect = (activeSalt.r1.includes(v1) && activeSalt.r2.includes(v2)) || 
                           (activeSalt.r1.includes(v2) && activeSalt.r2.includes(v1));
-        if (isCorrect) score += 10;
+        
+        document.getElementById('confirm-reagents-btn').disabled = true;
+
+        if (isCorrect) {
+            score += 10;
+        } else {
+            mistakes.push({
+                salt: activeSalt.name + " (Reagents)",
+                wrong: `${v1} + ${v2}`,
+                correct: `${activeSalt.r1[0]} + ${activeSalt.r2[0]}`
+            });
+        }
+        
         document.getElementById('score-display').innerText = `Score: ${score}`;
         document.getElementById('feedback').innerText = isCorrect ? "Correct!" : `Incorrect. Use ${activeSalt.r1[0]} and ${activeSalt.r2[0]}.`;
         document.getElementById('feedback').className = isCorrect ? 'correct' : 'wrong';
         document.getElementById('feedback').style.display = 'block';
-        document.getElementById('next-btn').style.display = 'block';
+        
+        // Auto-move to next question after 2 seconds
+        setTimeout(() => {
+            nextQuestion();
+        }, 2000);
     }
 
     function showEndScreen() {
+        if (score > highScores[gameMode]) {
+            highScores[gameMode] = score;
+            localStorage.setItem(`saltMaster_${gameMode}_high`, score);
+            updateHighScoreDisplay();
+        }
+
         document.getElementById('game-ui').style.display = 'none';
         document.getElementById('summary-section').style.display = 'block';
         document.getElementById('final-stats').innerText = `${score} points`;
-        // Stop music at end screen if preferred
+        
+        const errorSummary = document.getElementById('error-summary');
+        if (mistakes.length === 0) {
+            errorSummary.innerHTML = `<p style="text-align:center; color:var(--success); font-weight:800;">Perfect score! No mistakes made. 🎉</p>`;
+        } else {
+            errorSummary.innerHTML = mistakes.map(m => `
+                <div class="error-item">
+                    <span class="error-label">Salt: ${m.salt}</span>
+                    <span style="opacity:0.7">You picked: <span style="text-decoration:line-through">${m.wrong}</span></span><br>
+                    <span class="error-fix">Correct answer: ${m.correct}</span>
+                </div>
+            `).join('');
+        }
+
         musicClassic.pause();
         musicSpeed.pause();
     }
@@ -440,9 +562,13 @@
         updateMusic();
     }
 
-    function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+    function toggleFullscreen() { 
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => {}); 
+        else document.exitFullscreen(); 
+    }
 
-    // Click anywhere to resume audio context (needed for some browsers)
+    updateHighScoreDisplay();
+
     document.addEventListener('click', () => {
         if (isMusicEnabled) {
              const target = (gameMode === 'speed') ? musicSpeed : musicClassic;
