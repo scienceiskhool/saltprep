@@ -1,581 +1,815 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Salt Prep Master</title>
-    <style>
-        :root {
-            --primary: #3498db;
-            --success: #27ae60;
-            --warning: #e67e22;
-            --danger: #e74c3c;
-            --bg: #f0f4f8;
-            --card-bg: #ffffff;
-            --text: #2c3e50;
-            --accent: #9b59b6;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#069494">
+<title>Salt Prep Master · Science is Khool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Science is Khool · Tropical Punch — "Arcade Punch" game skin */
+:root {
+  --orange: #FF8243; --pink: #FFC0CB; --yellow: #FCE883; --teal: #069494; --teal-ink: #057A7A;
+  --orange-tint: #FFE6DA; --pink-tint: #FFEEF1; --yellow-tint: #FEF8D9; --teal-tint: #DDF2F2;
+  --ink: #1F2A2E; --muted: #56656A; --line: #E4E8E9; --bg: #FFFFFF;
+  --good: #1E9E62; --good-tint: #D8F3E4; --bad: #E2463A;
+  --b: 3px solid var(--ink);
+  --font: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 16px/1.5 var(--font); min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+[hidden] { display: none !important; }
+.sub { font-size: .65em; position: relative; bottom: -.25em; line-height: 0; }
+:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+.wrap { width: 100%; max-width: 1040px; margin: 0 auto; padding: 16px; flex: 1; display: flex; flex-direction: column; }
+.card { background: #fff; border: var(--b); border-radius: 22px; box-shadow: 6px 6px 0 var(--ink); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: var(--b); border-radius: 16px; padding: 14px 18px; font-weight: 800; font-size: 1.1rem; background: var(--orange); color: var(--ink); box-shadow: 0 5px 0 var(--ink); transition: transform .08s, box-shadow .08s; user-select: none; -webkit-user-select: none; }
+.btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.big { width: 100%; font-size: 1.12rem; text-transform: uppercase; letter-spacing: .03em; padding: 15px; }
+.btn.alt { background: #fff; } .btn.teal { background: var(--teal); color: #fff; } .btn.small { padding: 8px 14px; font-size: .95rem; box-shadow: 0 3px 0 var(--ink); }
+.pill { display: inline-block; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; border: 2px solid var(--ink); border-radius: 99px; padding: 2px 10px; background: #fff; color: var(--ink); }
+.icon-btn { width: 42px; height: 42px; border-radius: 12px; border: var(--b); background: #fff; display: grid; place-items: center; box-shadow: 0 3px 0 var(--ink); padding: 0; flex: none; }
+.icon-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.icon-btn svg { width: 20px; height: 20px; } .icon-btn.off { opacity: .45; }
 
-        body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-            background-color: var(--bg); 
-            margin: 0; padding: 0;
-            display: flex; justify-content: center; align-items: center; 
-            min-height: 100vh; color: var(--text); overflow-x: hidden;
-        }
+.topbar { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 2px solid var(--line); background: #fff; }
+.topbar .brand { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; text-decoration: none; color: var(--ink); }
+.topbar .brand img { width: 38px; height: 38px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--yellow); object-fit: cover; flex: none; }
+.topbar .brand > span { min-width: 0; }
+.topbar .brand b { font-weight: 800; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.topbar .brand small { display: block; font-size: .72rem; color: var(--muted); font-weight: 600; line-height: 1.2; }
 
-        #game-container {
-            width: 100%; max-width: 900px; min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: clamp(10px, 3vw, 20px); position: relative;
-        }
+/* start */
+.start { display: grid; gap: 22px; grid-template-columns: 1fr; align-items: start; margin: auto 0; padding-block: 8px 20px; }
+.hero { background: var(--teal); color: #fff; padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+.hero h1 { margin: 4px 0 0; font-size: clamp(1.9rem, 6.5vw, 2.8rem); line-height: 1.08; font-weight: 800; }
+.hero h1 em { font-style: normal; background: var(--yellow); color: var(--ink); border: var(--b); border-radius: 14px; padding: 0 10px; display: inline-block; transform: rotate(-2deg); }
+.hero p { margin: 0; font-weight: 600; max-width: 40ch; }
+.hero .credit { font-size: .85rem; opacity: .9; }
+.methods-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 6px; }
+.methods-strip img { width: 100%; aspect-ratio: 1; object-fit: cover; border: var(--b); border-radius: 14px; background: #fff; display: block; }
+.form { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.form h2 { margin: 0; font-size: 1.25rem; font-weight: 800; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fields .full { grid-column: 1 / -1; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-weight: 700; font-size: .9rem; }
+label.f input, label.f select { font-size: 16px; padding: 12px; border: 2.5px solid var(--ink); border-radius: 12px; background: #fff; width: 100%; min-width: 0; }
+label.f input:focus, label.f select:focus { outline: 3px solid var(--yellow); outline-offset: 1px; }
+.form-err { color: var(--bad); font-weight: 700; font-size: .9rem; min-height: 1.2em; margin: -4px 0 0; }
+.modes { display: grid; gap: 12px; }
+.mode { text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 14px 16px; text-transform: none; letter-spacing: 0; }
+.mode b { font-size: 1.15rem; } .mode span { font-weight: 600; font-size: .9rem; } .mode small { font-weight: 700; font-size: .8rem; opacity: .85; }
+@media (min-width: 760px) { .start { grid-template-columns: 1.1fr 1fr; gap: 28px; } }
 
-        #game-box { 
-            background: var(--card-bg); padding: clamp(15px, 5vw, 40px); 
-            border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
-            width: 100%; border-top: 12px solid var(--primary); 
-            position: relative; max-height: 95vh; overflow-y: auto; z-index: 10;
-        }
+/* play */
+.play { display: grid; grid-template-columns: 1fr; border: var(--b); border-radius: 22px; overflow: hidden; box-shadow: 6px 6px 0 var(--ink); background: #fff; margin-block: 4px 16px; }
+.hud { background: var(--teal); color: #fff; padding: 14px; display: flex; flex-direction: column; gap: 10px; border-bottom: var(--b); }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.score { font-size: 1.9rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.score small { display: block; font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; opacity: .9; margin-bottom: 2px; }
+.badges { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.lvl { background: var(--yellow); color: var(--ink); font-weight: 800; border: var(--b); border-radius: 10px; padding: 2px 10px; transform: rotate(-3deg); box-shadow: 2px 2px 0 var(--ink); white-space: nowrap; }
+.combo { background: var(--orange); color: var(--ink); font-weight: 800; border: var(--b); border-radius: 10px; padding: 2px 8px; transform: rotate(3deg); box-shadow: 2px 2px 0 var(--ink); white-space: nowrap; font-size: .9rem; }
+.hearts { display: flex; gap: 4px; } .hearts svg { width: 22px; height: 22px; }
+.hearts .lost { animation: lose .5s ease-out; } @keyframes lose { 0% { transform: scale(1.4); } 100% { transform: scale(1); } }
+.qtime { flex: 1; height: 12px; border: 2px solid var(--ink); border-radius: 99px; background: #fff; overflow: hidden; }
+.qtime i { display: block; height: 100%; width: 100%; background: var(--orange); } .qtime i.warn { background: var(--bad); }
+.secs { font-weight: 800; font-size: .9rem; font-variant-numeric: tabular-nums; min-width: 2.6em; text-align: right; }
+.salt { background: #fff; color: var(--ink); border: var(--b); border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+.salt .txt { flex: 1; min-width: 0; text-align: center; }
+.salt small { display: block; font-weight: 700; color: var(--muted); font-size: .85rem; }
+.salt b { display: block; font-size: clamp(1.5rem, 6vw, 2rem); line-height: 1.15; font-weight: 800; }
+.salt .fml { display: block; font-weight: 700; color: var(--muted); font-size: 1.1rem; }
+.salt img { width: 74px; height: 74px; border: 2.5px solid var(--ink); border-radius: 12px; object-fit: cover; flex: none; }
+.steps { display: flex; gap: 6px; flex-wrap: wrap; }
+.steps span { font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; border: 2px solid var(--ink); background: rgba(255,255,255,.35); color: var(--ink); }
+.steps span.now { background: #fff; } .steps span.ok { background: var(--yellow); } .steps span.no { background: var(--orange); } .steps span.skip { opacity: .45; text-decoration: line-through; }
 
-        /* Home Screen Styles */
-        #home-screen { text-align: center; animation: fadeIn 0.5s ease; }
-        .hero-banner { 
-            background: linear-gradient(135deg, #6dd5ed, #2193b0); 
-            padding: 30px; border-radius: 20px; color: white; margin-bottom: 30px;
-            box-shadow: 0 10px 20px rgba(33, 147, 176, 0.3);
-        }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .menu-card {
-            background: white; border: 3px solid #edf2f7; border-radius: 24px;
-            padding: 30px 20px; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-align: center; display: flex; flex-direction: column; align-items: center;
-            position: relative; overflow: hidden;
-        }
-        .menu-card:hover { transform: scale(1.05); border-color: var(--primary); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        .menu-card h2 { margin: 15px 0 5px; color: #34495e; font-size: 1.5rem; }
-        .menu-card p { font-size: 0.9rem; color: #7f8c8d; line-height: 1.4; margin-bottom: 15px; flex-grow: 1; }
-        .menu-icon-lg { font-size: 3.5rem; display: block; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1)); }
-        
-        .high-score-badge {
-            background: #fdf2f2; color: var(--danger);
-            padding: 6px 15px; border-radius: 20px; font-weight: 800; font-size: 0.85rem;
-            border: 2px solid #fee2e2; display: inline-block;
-        }
+.controls { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.ask { font-weight: 800; font-size: 1.1rem; text-align: center; margin: 0; text-wrap: balance; }
+.hint-row { display: flex; justify-content: center; }
+.hint { background: var(--yellow-tint); border: 2.5px solid var(--ink); border-radius: 14px; padding: 10px 12px; font-weight: 600; font-size: .95rem; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.choice { font-weight: 800; font-size: 1.1rem; padding: 16px 10px; border: var(--b); border-radius: 16px; background: #fff; box-shadow: 0 4px 0 var(--ink); }
+.choice small { display: block; font-weight: 600; font-size: .82rem; color: var(--muted); }
+.choice:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.choice.right { background: var(--good-tint); } .choice.wrong { background: var(--orange-tint); }
+.methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.method { padding: 0; border: var(--b); border-radius: 16px; background: #fff; box-shadow: 0 4px 0 var(--ink); overflow: hidden; display: flex; flex-direction: column; }
+.method:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.method img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; pointer-events: none; }
+.method span { font-weight: 800; font-size: .82rem; padding: 6px 4px; border-top: 2.5px solid var(--ink); line-height: 1.2; }
+.method.right { outline: 4px solid var(--good); outline-offset: -4px; } .method.wrong { opacity: .5; }
+.rgroups { display: flex; flex-direction: column; gap: 10px; }
+.rgroup h4 { margin: 0 0 6px; font-size: .74rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { font-weight: 700; font-size: .92rem; padding: 7px 11px; border: 2.5px solid var(--ink); border-radius: 99px; background: #fff; box-shadow: 0 2px 0 var(--ink); }
+.chip[aria-pressed="true"] { background: var(--yellow); font-weight: 800; transform: translateY(2px); box-shadow: none; }
+.chip.right { background: var(--good-tint); } .chip.wrong { background: var(--orange-tint); text-decoration: line-through; }
+.picked { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-weight: 800; min-height: 2.6em; padding: 6px 10px; border: 2.5px dashed var(--ink); border-radius: 14px; background: var(--yellow-tint); text-align: center; }
+.picked .ph { color: #9AA5A8; font-weight: 700; }
+.order-pool, .order-list { display: flex; flex-direction: column; gap: 8px; }
+.ostep { text-align: left; font-weight: 700; font-size: .95rem; padding: 10px 12px; border: 2.5px solid var(--ink); border-radius: 14px; background: #fff; box-shadow: 0 3px 0 var(--ink); display: flex; gap: 10px; align-items: flex-start; }
+.ostep .n { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid var(--ink); display: grid; place-items: center; font-weight: 800; font-size: .85rem; background: var(--yellow); }
+.ostep.used { display: none; }
+.order-list .ostep { background: var(--teal-tint); box-shadow: none; }
+.order-list .ostep.right { background: var(--good-tint); } .order-list .ostep.wrong { background: var(--orange-tint); }
+.order-empty { text-align: center; color: var(--muted); font-weight: 600; font-size: .9rem; padding: 8px; border: 2.5px dashed var(--line); border-radius: 14px; }
+.btn-row { display: flex; gap: 10px; } .btn-row .btn { flex: 1; }
+.feedback { border: var(--b); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.feedback.ok { background: var(--good-tint); } .feedback.no { background: var(--orange-tint); }
+.feedback h3 { margin: 0; font-size: 1.2rem; font-weight: 800; }
+.feedback p { margin: 0; font-weight: 600; }
+.feedback .why { background: #fff; border: 2px solid var(--ink); border-radius: 12px; padding: 8px 12px; font-weight: 600; }
+.feedback ol { margin: 0; padding-left: 22px; font-weight: 600; }
+.flash { text-align: center; font-weight: 800; font-size: 1.3rem; padding: 16px; border: var(--b); border-radius: 16px; background: var(--good-tint); }
+.blitz-fb { position: fixed; left: 50%; top: 40%; translate: -50% -50%; z-index: 60; pointer-events: none; font-weight: 800; font-size: 1.4rem; padding: 12px 20px; border: var(--b); border-radius: 18px; box-shadow: 4px 4px 0 var(--ink); animation: blitz .9s ease-out forwards; text-align: center; }
+.blitz-fb.ok { background: var(--good-tint); } .blitz-fb.no { background: var(--orange-tint); }
+@keyframes blitz { 0% { opacity: 0; scale: .6; } 20% { opacity: 1; scale: 1.08; } 70% { opacity: 1; scale: 1; } 100% { opacity: 0; translate: -50% -90%; } }
+@media (min-width: 760px) {
+  .play { grid-template-columns: 1fr 1.15fr; }
+  .hud { border-bottom: 0; border-right: var(--b); padding: 18px; }
+  .controls { padding: 18px; }
+}
 
-        /* Speed Blitz Feedback Overlay */
-        #speed-feedback-overlay {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 1000; pointer-events: none; text-align: center;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .blitz-feedback {
-            font-size: 5rem; font-weight: 900; animation: bounceOut 0.8s ease-out forwards;
-            text-shadow: 0 0 20px rgba(0,0,0,0.2);
-        }
-        .blitz-correct { color: var(--success); }
-        .blitz-wrong { color: var(--danger); }
-        .blitz-info { font-size: 1.2rem; color: var(--text); background: white; padding: 5px 15px; border-radius: 12px; margin-top: -10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-
-        /* Timer Bar */
-        .timer-container { width: 100%; height: 16px; background: #eee; border-radius: 10px; margin: 20px 0; overflow: hidden; display: none; border: 2px solid #ddd; }
-        #timer-bar { width: 100%; height: 100%; background: linear-gradient(90deg, var(--success), #2ecc71); transition: width 0.1s linear; }
-        
-        .control-bar { position: absolute; top: 15px; right: 20px; display: flex; gap: 10px; z-index: 100; }
-        .control-btn {
-            background: white; border: 2px solid #eee; border-radius: 12px;
-            padding: 8px 15px; font-size: 0.8rem; cursor: pointer; color: #6c757d;
-            display: flex; align-items: center; gap: 8px; font-weight: 700; transition: 0.2s;
-        }
-        .control-btn:hover { background: #f8f9fa; border-color: #ddd; }
-
-        header { text-align: center; margin-bottom: 25px; }
-        h1 { margin: 0; font-size: clamp(1.8rem, 5vw, 2.5rem); letter-spacing: -1px; }
-        
-        .tracker { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 800; border-bottom: 3px solid #f1f3f5; padding-bottom: 12px; font-size: 1.1rem; }
-
-        .salt-card { 
-            font-size: clamp(1.4rem, 5vw, 2rem); font-weight: 900; color: var(--warning); 
-            text-align: center; margin: 20px 0; padding: 30px; 
-            background: #fffdf2; border: 4px dashed #f1c40f; border-radius: 24px;
-            box-shadow: inset 0 0 15px rgba(241, 196, 15, 0.1);
-            line-height: 1.3;
-        }
-        .salt-formula { display: block; font-size: 0.8em; opacity: 0.8; color: var(--text); margin-top: 5px; }
-        
-        #hint-box {
-            background: #fcf3cf; border: 2px solid #f1c40f; border-radius: 16px;
-            padding: 15px; margin: 15px 0; display: none; text-align: center;
-            font-weight: 600; color: #9a7d0a; animation: fadeIn 0.3s ease;
-        }
-        .hint-btn {
-            background: #f1c40f; color: #fff; padding: 5px 12px; border-radius: 12px;
-            border: none; cursor: pointer; font-weight: 800; font-size: 0.8rem;
-            margin-bottom: 10px; transition: 0.2s;
-        }
-        .hint-btn:hover { background: #d4ac0d; }
-
-        .master-step-layout { 
-            display: grid; 
-            grid-template-columns: 1fr 1.2fr; 
-            gap: 25px; 
-            align-items: start;
-            margin-top: 20px;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .icon-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .method-icon { 
-            text-align: center; cursor: pointer; transition: all 0.2s; 
-            border: 3px solid #f1f3f5; border-radius: 24px; padding: 25px 10px; 
-            background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .method-icon:hover { border-color: var(--primary); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .method-icon img { width: 85%; max-width: 110px; margin-bottom: 12px; pointer-events: none; }
-        .method-icon span { font-size: 0.85rem; font-weight: 800; text-transform: capitalize; color: #34495e; line-height: 1.2; }
-        
-        .selected-method-preview {
-            border: 4px solid var(--primary); background: #f0f7ff; border-radius: 32px;
-            padding: 30px 20px; text-align: center; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 15px; aspect-ratio: 1 / 1; 
-            width: 100%; max-width: 280px; margin: 0 auto;
-        }
-        .selected-method-preview img { width: 100%; max-width: 160px; height: auto; }
-        .selected-method-preview span { font-weight: 900; color: var(--primary); text-transform: uppercase; font-size: 0.9rem; }
-
-        .btn { width: 100%; padding: 16px; margin-top: 10px; border-radius: 16px; font-size: 1rem; border: none; cursor: pointer; font-weight: 800; transition: 0.3s; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-success { background: var(--success); color: white; }
-
-        #feedback { margin-top: 20px; padding: 18px; border-radius: 16px; font-weight: 700; text-align: center; display: none; font-size: 1.1rem; }
-        .correct { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
-        .wrong { background: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
-
-        #error-summary {
-            margin: 25px 0; text-align: left; background: #fff; border-radius: 20px; 
-            padding: 20px; border: 2px solid #f1f3f5; max-height: 300px; overflow-y: auto;
-        }
-        .error-item { border-bottom: 1px solid #eee; padding: 12px 0; font-size: 0.95rem; }
-        .error-item:last-child { border: none; }
-        .error-label { font-weight: 800; color: var(--danger); display: block; margin-bottom: 4px; }
-        .error-fix { font-weight: 600; color: var(--success); }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes bounceOut {
-            0% { opacity: 0; transform: scale(0.3); }
-            50% { opacity: 1; transform: scale(1.2); }
-            70% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: translateY(-50px); }
-        }
-
-        @media (max-width: 768px) {
-            .master-step-layout { grid-template-columns: 1fr; gap: 20px; }
-            .selected-method-preview { aspect-ratio: auto; flex-direction: row; padding: 15px 25px; max-width: 100%; height: auto; }
-            .selected-method-preview img { width: 70px; max-width: 70px; }
-            .menu-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+/* results */
+.results { display: grid; gap: 18px; grid-template-columns: 1fr; padding-block: 8px 20px; }
+.res-hero { background: var(--teal); color: #fff; padding: 22px; display: flex; gap: 18px; align-items: center; }
+.big-ring { --p: 0; width: 120px; height: 120px; flex: none; border-radius: 50%; border: var(--b); background: conic-gradient(var(--yellow) calc(var(--p) * 1%), #fff 0); display: grid; place-items: center; }
+.big-ring span { width: 88px; height: 88px; border-radius: 50%; background: #fff; color: var(--ink); border: var(--b); display: grid; place-items: center; font-weight: 800; font-size: 1.7rem; }
+.res-hero h2 { margin: 0 0 4px; font-size: 1.6rem; line-height: 1.15; font-weight: 800; } .res-hero p { margin: 0; font-weight: 600; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.stat { border: var(--b); border-radius: 14px; padding: 8px 10px; box-shadow: 0 4px 0 var(--ink); }
+.stat span { display: block; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.stat b { font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.stat:nth-child(1) { background: var(--yellow-tint); } .stat:nth-child(2) { background: var(--pink-tint); } .stat:nth-child(3) { background: var(--teal-tint); } .stat:nth-child(4) { background: var(--orange-tint); }
+.panel { padding: 18px; display: flex; flex-direction: column; gap: 12px; } .panel h3 { margin: 0; font-size: 1.15rem; font-weight: 800; }
+.bars { display: flex; flex-direction: column; gap: 8px; }
+.bar-row { display: grid; grid-template-columns: 10.5em 1fr 3.2em; gap: 10px; align-items: center; font-weight: 700; font-size: .92rem; }
+.bar { height: 14px; border: 2px solid var(--ink); border-radius: 99px; overflow: hidden; background: #fff; }
+.bar i { display: block; height: 100%; background: var(--teal); } .bar i.low { background: var(--orange); }
+.bar-row .n { text-align: right; font-variant-numeric: tabular-nums; }
+.weak, .review { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.weak li { border: 2.5px solid var(--ink); border-radius: 14px; padding: 10px 12px; background: var(--orange-tint); }
+.weak li b { display: block; } .weak li span { font-size: .9rem; } .weak li.good { background: var(--good-tint); }
+.review li { border-bottom: 2px solid var(--line); padding: 6px 0 8px; font-size: .95rem; } .review li:last-child { border-bottom: 0; }
+.review .you { color: var(--bad); font-weight: 700; } .review .key { color: var(--good); font-weight: 800; }
+.send { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-weight: 700; padding: 12px 14px; border: 2.5px solid var(--ink); border-radius: 14px; background: var(--teal-tint); }
+.send.err { background: var(--orange-tint); }
+.res-actions { display: flex; gap: 12px; flex-wrap: wrap; } .res-actions .btn { flex: 1 1 200px; }
+@media (min-width: 760px) { .results { grid-template-columns: 1fr 1fr; align-items: start; } .results .span { grid-column: 1 / -1; } }
+@media (max-width: 480px) { .stats { grid-template-columns: repeat(2, 1fr); } .res-hero { flex-direction: column; text-align: center; } .bar-row { grid-template-columns: 8.6em 1fr 3em; font-size: .85rem; } .method span { font-size: .72rem; } }
+footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 14px 16px 20px; }
+footer a { color: var(--teal-ink); font-weight: 700; }
+canvas#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+@media (prefers-reduced-motion: reduce) { .hearts .lost, .blitz-fb { animation: none !important; } }
+</style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><path id="heart" d="M12 21s-7.5-4.6-9.5-9.3C1 8.3 3.3 4.5 7 4.5c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.7 0 6 3.8 4.5 7.2C19.5 16.4 12 21 12 21z"/></defs></svg>
+<audio id="music-master" loop preload="none" src="Sky%20Coins.mp3"></audio>
+<audio id="music-blitz" loop preload="none" src="Quiz%20Quest%20Groove%202.mp3"></audio>
 
-<div id="game-container">
-    <audio id="bg-music-classic" loop><source src="Sky Coins.mp3" type="audio/mpeg"></audio>
-    <audio id="bg-music-speed" loop><source src="Quiz Quest Groove 2.mp3" type="audio/mpeg"></audio>
+<header class="topbar">
+  <a class="brand" href="https://scienceiskhool.github.io/scienceiskhool/" target="_blank" rel="noopener">
+    <img src="https://scienceiskhool.github.io/scienceiskhool/assets/img/head.png" alt="" onerror="this.style.visibility='hidden'">
+    <span><b>Salt Prep Master</b><small>Science is Khool · Preparing salts</small></span>
+  </a>
+  <button class="icon-btn" id="btn-music" type="button" aria-label="Music" title="Music">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  </button>
+  <button class="icon-btn" id="btn-sound" type="button" aria-label="Sound effects" title="Sound effects">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+  </button>
+  <button class="icon-btn" id="btn-full" type="button" aria-label="Full screen" title="Full screen" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+  </button>
+</header>
 
-    <div id="speed-feedback-overlay"></div>
-
-    <div id="game-box">
-        <div class="control-bar">
-            <button id="music-toggle" class="control-btn" onclick="handleMusicToggleRequest()">🔇 Music: Off</button>
-            <button class="control-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
-        </div>
-        
-        <header id="main-header">
-            <h1>Salt Prep Master</h1>
-            <p style="color:#7f8c8d; font-weight:600; margin-top:5px;">Ms Khoo Xiang Yun & Mr Jansen Tan</p>
-        </header>
-
-        <div id="home-screen">
-            <div class="hero-banner">
-                <h2 style="margin:0; font-size: 1.8rem;">Ready to Experiment?</h2>
-                <p style="margin:5px 0 0; opacity:0.9;">Choose your challenge level</p>
-            </div>
-            <div class="menu-grid">
-                <div class="menu-card" onclick="startChallenge('classic')">
-                    <span class="menu-icon-lg">🏆</span>
-                    <h2>Master Challenge</h2>
-                    <p>Perfect for learning. Select reagents for 10 specific salts.</p>
-                    <div id="classic-high-score" class="high-score-badge">High Score: 0</div>
-                </div>
-                <div class="menu-card" onclick="startChallenge('speed')">
-                    <span class="menu-icon-lg">⚡</span>
-                    <h2>Speed Blitz</h2>
-                    <p>60 seconds on the clock! Rapid-fire identification.</p>
-                    <div id="speed-high-score" class="high-score-badge">High Score: 0</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="game-ui" style="display:none;">
-            <div class="tracker">
-                <span id="stat-left">Question: 1/10</span>
-                <span id="score-display">Score: 0</span>
-            </div>
-
-            <div class="timer-container" id="timer-wrapper">
-                <div id="timer-bar"></div>
-            </div>
-
-            <div class="salt-card" id="salt-display">
-                <span id="salt-name">loading...</span>
-                <span id="salt-formula" class="salt-formula"></span>
-            </div>
-
-            <div style="text-align: center;">
-                <button id="hint-trigger" class="hint-btn" onclick="toggleHint()">💡 Get a Hint</button>
-            </div>
-            <div id="hint-box"></div>
-
-            <div id="method-selection-view">
-                <p style="text-align:center; font-weight:800; margin-bottom: 15px; color:#34495e;">Select the correct preparation method:</p>
-                <div class="icon-container">
-                    <div class="method-icon" onclick="handleMethodSelection('precipitation')">
-                        <img src="https://lh3.googleusercontent.com/d/1V4ruvCr9j11SJR1uM95yIm9w-ptbYhF2" alt="prec">
-                        <span>precipitation</span>
-                    </div>
-                    <div class="method-icon" onclick="handleMethodSelection('titration')">
-                        <img src="https://lh3.googleusercontent.com/d/1xpjZX_d8GbhAb6OrCGo2HvPepWrnL2_s" alt="titr">
-                        <span>titration</span>
-                    </div>
-                    <div class="method-icon" onclick="handleMethodSelection('excess solid to acid')">
-                        <img src="https://lh3.googleusercontent.com/d/1iIWpBGq3FO1fRsdD0GiGTzAPpd0c_hIE" alt="excess">
-                        <span>excess solid to acid</span>
-                    </div>
-                </div>
-            </div>
-
-            <div id="master-reagent-view" class="master-step-layout" style="display:none;">
-                <div id="persistent-method-col">
-                    <div class="selected-method-preview">
-                        <img id="step2-method-img" src="" alt="method">
-                        <span id="step2-method-name">METHOD</span>
-                    </div>
-                </div>
-                <div id="reagent-inputs-col">
-                    <p style="font-weight:800; margin-bottom: 12px; color:#34495e;">Choose reagents:</p>
-                    <label style="font-size: 0.8rem; font-weight: 700; color: #95a5a6; display: block; margin-bottom: 4px;">Reagent 1:</label>
-                    <select id="r1" class="btn" style="background:white; color:black; border:2px solid #ddd; margin-top: 0; margin-bottom: 15px;"></select>
-                    
-                    <label style="font-size: 0.8rem; font-weight: 700; color: #95a5a6; display: block; margin-bottom: 4px;">Reagent 2:</label>
-                    <select id="r2" class="btn" style="background:white; color:black; border:2px solid #ddd; margin-top: 0; margin-bottom: 25px;"></select>
-                    
-                    <button id="confirm-reagents-btn" class="btn btn-primary" onclick="submitReagents()">Confirm Reagents</button>
-                </div>
-            </div>
-
-            <div id="feedback"></div>
-            <button id="next-btn" class="btn btn-success" style="display:none;" onclick="nextQuestion()">Next Question →</button>
-        </div>
-
-        <div id="summary-section" style="display:none; text-align:center;">
-            <div class="hero-banner" style="background: var(--accent);">
-                <h2 id="summary-title" style="margin:0;">Challenge Complete!</h2>
-            </div>
-            <div id="final-stats" style="font-size: 2.2rem; margin: 10px 0; font-weight: 900; color: var(--text);"></div>
-            
-            <div id="error-summary-container">
-                <h3 style="margin-bottom:10px;">Mistake Log</h3>
-                <div id="error-summary"></div>
-            </div>
-
-            <button class="btn btn-primary" onclick="resetGame()">Back to Main Menu</button>
-        </div>
+<main class="wrap">
+  <!-- START -->
+  <section id="scr-start" class="start">
+    <div class="card hero">
+      <span class="pill" style="align-self:flex-start">Chemistry · Preparing salts</span>
+      <h1>Salt Prep <em>Master</em></h1>
+      <p>Decide how to make each salt: is it soluble, which method, which reagents, and in what order?</p>
+      <div class="methods-strip" id="methods-strip"></div>
+      <p class="credit">By Ms Khoo Xiang Yun &amp; Mr Jansen Tan</p>
     </div>
-</div>
+    <form class="card form" id="form-start" novalidate>
+      <h2>Sign in to play</h2>
+      <div class="fields">
+        <label class="f full" for="in-name">Name<input id="in-name" maxlength="60" autocomplete="name" required></label>
+        <label class="f" for="in-cls">Class<select id="in-cls" required><option value="">Choose…</option></select></label>
+        <label class="f" for="in-reg">Register no.<input id="in-reg" inputmode="numeric" pattern="[0-9]*" maxlength="2" required></label>
+      </div>
+      <p class="form-err" id="form-err" role="alert"></p>
+      <div class="modes">
+        <button class="btn mode" type="submit" data-mode="master"><b>🏆 Master Challenge</b><span>Up to 10 salts, step by step, with 3 lives.</span><small id="best-master">Best: 0</small></button>
+        <button class="btn mode teal" type="submit" data-mode="blitz"><b>⚡ Speed Blitz</b><span>60 seconds. Pick the method as fast as you can.</span><small id="best-blitz">Best: 0</small></button>
+      </div>
+    </form>
+  </section>
+
+  <!-- PLAY -->
+  <section id="scr-play" class="play" hidden>
+    <div class="hud">
+      <div class="row">
+        <div class="score"><small>Points</small><span id="txt-points">0</span></div>
+        <div class="badges"><span class="combo" id="txt-combo" hidden></span><span class="lvl" id="txt-count">Salt 1/10</span></div>
+      </div>
+      <div class="row" id="hud-lives"><div class="hearts" id="hearts"></div><button class="btn small alt" id="btn-hint" type="button">💡 Hint</button></div>
+      <div class="row" id="hud-time" hidden><div class="qtime"><i id="bar-time"></i></div><span class="secs" id="txt-secs">60s</span></div>
+      <div class="salt" aria-live="polite">
+        <div class="txt"><small>Prepare a pure, dry sample of</small><b id="salt-name"></b><span class="fml" id="salt-fml"></span></div>
+        <img id="salt-method-img" alt="" hidden>
+      </div>
+      <div class="steps" id="steps"></div>
+    </div>
+    <div class="controls" id="controls">
+      <p class="hint" id="hint-box" hidden></p>
+      <div id="stage"></div>
+      <div class="feedback" id="fb" hidden aria-live="assertive">
+        <h3 id="fb-title"></h3>
+        <div id="fb-body"></div>
+        <button class="btn teal" id="btn-next" type="button">Continue →</button>
+      </div>
+      <div class="flash" id="flash" hidden></div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="scr-result" class="results" hidden>
+    <div class="card res-hero span">
+      <div class="big-ring" id="res-ring"><span id="res-pct">0%</span></div>
+      <div><h2 id="res-title"></h2><p id="res-msg"></p></div>
+    </div>
+    <div class="stats span">
+      <div class="stat"><span id="res-l1">Salts correct</span><b id="res-correct">0/0</b></div>
+      <div class="stat"><span id="res-l2">Steps correct</span><b id="res-steps">0%</b></div>
+      <div class="stat"><span>Time</span><b id="res-time">0:00</b></div>
+      <div class="stat"><span>Points</span><b id="res-points">0</b></div>
+    </div>
+    <div class="card panel">
+      <h3>How you did</h3>
+      <div class="bars" id="res-bars"></div>
+      <h3 style="margin-top:6px">What to work on</h3>
+      <ul class="weak" id="res-weak"></ul>
+    </div>
+    <div class="card panel"><h3>Check your mistakes</h3><ul class="review" id="res-review"></ul></div>
+    <div class="send span" id="send" aria-live="polite"><span id="send-msg">Sending your results to Ms Khoo…</span><button class="btn small alt" id="btn-resend" type="button" hidden>Try again</button></div>
+    <div class="res-actions span">
+      <button class="btn big teal" id="btn-home" type="button">Home</button>
+      <button class="btn big" id="btn-again" type="button">Play again ↻</button>
+    </div>
+  </section>
+</main>
+<footer>Created by Ms Khoo Xiang Yun &amp; Mr Jansen Tan · <a href="https://scienceiskhool.github.io/scienceiskhool/" target="_blank" rel="noopener">Science is Khool</a></footer>
+<canvas id="confetti" hidden></canvas>
 
 <script>
-    const methodAssets = {
-        precipitation: "https://lh3.googleusercontent.com/d/1V4ruvCr9j11SJR1uM95yIm9w-ptbYhF2",
-        titration: "https://lh3.googleusercontent.com/d/1xpjZX_d8GbhAb6OrCGo2HvPepWrnL2_s",
-        "excess solid to acid": "https://lh3.googleusercontent.com/d/1iIWpBGq3FO1fRsdD0GiGTzAPpd0c_hIE"
-    };
+(function () {
+"use strict";
 
-    const saltsPool = [
-        { name: "sodium chloride", formula: "NaCl", method: "titration", r1: ["hydrochloric acid"], r2: ["sodium hydroxide", "sodium carbonate"], type: "SPA" },
-        { name: "potassium sulfate", formula: "K₂SO₄", method: "titration", r1: ["sulfuric acid"], r2: ["potassium hydroxide", "potassium carbonate"], type: "SPA" },
-        { name: "ammonium nitrate", formula: "NH₄NO₃", method: "titration", r1: ["nitric acid"], r2: ["ammonia solution"], type: "SPA" },
-        { name: "barium sulfate", formula: "BaSO₄", method: "precipitation", r1: ["barium nitrate"], r2: ["sodium sulfate", "sulfuric acid"], type: "insoluble" },
-        { name: "lead(II) iodide", formula: "PbI₂", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["potassium iodide"], type: "insoluble" },
-        { name: "copper(II) sulfate", formula: "CuSO₄", method: "excess solid to acid", r1: ["sulfuric acid"], r2: ["copper(II) oxide", "copper(II) carbonate"], type: "soluble non-SPA" },
-        { name: "magnesium chloride", formula: "MgCl₂", method: "excess solid to acid", r1: ["hydrochloric acid"], r2: ["magnesium ribbon", "magnesium oxide", "magnesium carbonate"], type: "soluble non-SPA" },
-        { name: "silver chloride", formula: "AgCl", method: "precipitation", r1: ["silver nitrate"], r2: ["sodium chloride", "hydrochloric acid"], type: "insoluble" },
-        { name: "zinc nitrate", formula: "Zn(NO₃)₂", method: "excess solid to acid", r1: ["nitric acid"], r2: ["zinc metal", "zinc oxide"], type: "soluble non-SPA" },
-        { name: "calcium carbonate", formula: "CaCO₃", method: "precipitation", r1: ["calcium nitrate"], r2: ["sodium carbonate", "potassium carbonate"], type: "insoluble" },
-        { name: "sodium nitrate", formula: "NaNO₃", method: "titration", r1: ["nitric acid"], r2: ["sodium hydroxide"], type: "SPA" },
-        { name: "lead(II) sulfate", formula: "PbSO₄", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["sulfuric acid", "sodium sulfate"], type: "insoluble" },
-        { name: "potassium chloride", formula: "KCl", method: "titration", r1: ["hydrochloric acid"], r2: ["potassium hydroxide", "potassium carbonate"], type: "SPA" },
-        { name: "ammonium sulfate", formula: "(NH₄)₂SO₄", method: "titration", r1: ["sulfuric acid"], r2: ["ammonia solution"], type: "SPA" },
-        { name: "zinc sulfate", formula: "ZnSO₄", method: "excess solid to acid", r1: ["sulfuric acid"], r2: ["zinc metal", "zinc oxide", "zinc carbonate"], type: "soluble non-SPA" },
-        { name: "magnesium nitrate", formula: "Mg(NO₃)₂", method: "excess solid to acid", r1: ["nitric acid"], r2: ["magnesium ribbon", "magnesium oxide", "magnesium carbonate"], type: "soluble non-SPA" },
-        { name: "calcium nitrate", formula: "Ca(NO₃)₂", method: "excess solid to acid", r1: ["nitric acid"], r2: ["calcium carbonate"], type: "soluble non-SPA" },
-        { name: "silver nitrate", formula: "AgNO₃", method: "excess solid to acid", r1: ["nitric acid"], r2: ["silver oxide"], type: "soluble non-SPA" },
-        { name: "barium nitrate", formula: "Ba(NO₃)₂", method: "excess solid to acid", r1: ["nitric acid"], r2: ["barium carbonate"], type: "soluble non-SPA" },
-        { name: "calcium sulfate", formula: "CaSO₄", method: "precipitation", r1: ["calcium nitrate"], r2: ["sodium sulfate", "potassium sulfate", "sulfuric acid"], type: "insoluble" },
-        { name: "silver bromide", formula: "AgBr", method: "precipitation", r1: ["silver nitrate"], r2: ["sodium bromide"], type: "insoluble" },
-        { name: "lead(II) chloride", formula: "PbCl₂", method: "precipitation", r1: ["lead(II) nitrate"], r2: ["sodium chloride", "hydrochloric acid"], type: "insoluble" }
-    ];
+/* =================== SETTINGS (safe to edit) =================== */
+var SUBMIT_URL = "https://script.google.com/macros/s/AKfycbxCTjRCQzLlWXmmY-5R0p75WCmeFLzC9ZM3gNbGRXpcc_d9qHMXdyCn12B4dHpnrBWe/exec";
+var SHEET_TAB = "Salt Prep";               // tab name in your Google Sheet
+var MASTER_SALTS = 10, LIVES = 3, BLITZ_SECONDS = 60;
+var CLASSES = [];
+["S1", "S2", "S3", "S4"].forEach(function (l) { ["Charity", "Courage", "Faith", "Hope", "Humility", "Integrity", "Love", "Respect", "Joy"].forEach(function (v) { CLASSES.push(l + " " + v); }); });
+CLASSES.push("S5 Faith", "Other");
 
-    const reagentOptions = ["-- select reagent --", "hydrochloric acid", "sulfuric acid", "nitric acid", "sodium hydroxide", "potassium hydroxide", "ammonia solution", "sodium carbonate", "potassium carbonate", "magnesium ribbon", "magnesium oxide", "magnesium carbonate", "zinc metal", "zinc oxide", "zinc carbonate", "copper(II) oxide", "copper(II) carbonate", "calcium carbonate", "silver oxide", "barium carbonate", "lead(II) nitrate", "barium nitrate", "silver nitrate", "calcium nitrate", "sodium sulfate", "magnesium sulfate", "sodium chloride", "sodium bromide", "potassium iodide"];
+/* Your method images (from your Google Drive) */
+var METHODS = {
+  "precipitation": "https://lh3.googleusercontent.com/d/1V4ruvCr9j11SJR1uM95yIm9w-ptbYhF2",
+  "titration": "https://lh3.googleusercontent.com/d/1xpjZX_d8GbhAb6OrCGo2HvPepWrnL2_s",
+  "excess solid to acid": "https://lh3.googleusercontent.com/d/1iIWpBGq3FO1fRsdD0GiGTzAPpd0c_hIE"
+};
+var METHOD_ORDER = ["precipitation", "titration", "excess solid to acid"];
 
-    let gameMode = 'classic', currentIdx = 0, score = 0, timeLeft = 60, timerId = null, activeSalt, isMusicEnabled = false, step = 1;
-    let mistakes = [];
+/* =================== SALTS ===================
+   cat / an: the salt's metal (or ammonium) and non-metal parts. type: insoluble | SPA | soluble non-SPA */
+var SALTS = [
+  { name: "sodium chloride", f: "NaCl", cat: "Na", an: "Cl", type: "SPA" },
+  { name: "potassium sulfate", f: "K2SO4", cat: "K", an: "SO4", type: "SPA" },
+  { name: "ammonium nitrate", f: "NH4NO3", cat: "NH4", an: "NO3", type: "SPA" },
+  { name: "sodium nitrate", f: "NaNO3", cat: "Na", an: "NO3", type: "SPA" },
+  { name: "potassium chloride", f: "KCl", cat: "K", an: "Cl", type: "SPA" },
+  { name: "ammonium sulfate", f: "(NH4)2SO4", cat: "NH4", an: "SO4", type: "SPA" },
+  { name: "barium sulfate", f: "BaSO4", cat: "Ba", an: "SO4", type: "insoluble" },
+  { name: "lead(II) iodide", f: "PbI2", cat: "Pb", an: "I", type: "insoluble" },
+  { name: "silver chloride", f: "AgCl", cat: "Ag", an: "Cl", type: "insoluble" },
+  { name: "calcium carbonate", f: "CaCO3", cat: "Ca", an: "CO3", type: "insoluble" },
+  { name: "lead(II) sulfate", f: "PbSO4", cat: "Pb", an: "SO4", type: "insoluble" },
+  { name: "calcium sulfate", f: "CaSO4", cat: "Ca", an: "SO4", type: "insoluble" },
+  { name: "silver bromide", f: "AgBr", cat: "Ag", an: "Br", type: "insoluble" },
+  { name: "lead(II) chloride", f: "PbCl2", cat: "Pb", an: "Cl", type: "insoluble" },
+  { name: "copper(II) sulfate", f: "CuSO4", cat: "Cu", an: "SO4", type: "soluble non-SPA" },
+  { name: "magnesium chloride", f: "MgCl2", cat: "Mg", an: "Cl", type: "soluble non-SPA" },
+  { name: "zinc nitrate", f: "Zn(NO3)2", cat: "Zn", an: "NO3", type: "soluble non-SPA" },
+  { name: "zinc sulfate", f: "ZnSO4", cat: "Zn", an: "SO4", type: "soluble non-SPA" },
+  { name: "magnesium nitrate", f: "Mg(NO3)2", cat: "Mg", an: "NO3", type: "soluble non-SPA" },
+  { name: "calcium nitrate", f: "Ca(NO3)2", cat: "Ca", an: "NO3", type: "soluble non-SPA" },
+  { name: "silver nitrate", f: "AgNO3", cat: "Ag", an: "NO3", type: "soluble non-SPA" },
+  { name: "barium nitrate", f: "Ba(NO3)2", cat: "Ba", an: "NO3", type: "soluble non-SPA" }
+];
+var METHOD_OF = { "SPA": "titration", "insoluble": "precipitation", "soluble non-SPA": "excess solid to acid" };
+var TYPE_NAMES = { "SPA": "Na, K, NH₄ salts", "insoluble": "Insoluble salts", "soluble non-SPA": "Other soluble salts" };
+SALTS.forEach(function (s) { s.method = METHOD_OF[s.type]; s.soluble = s.type !== "insoluble"; s.spa = s.type === "SPA"; s.why = solubilityWhy(s); });
 
-    let highScores = {
-        classic: parseInt(localStorage.getItem('saltMaster_classic_high')) || 0,
-        speed: parseInt(localStorage.getItem('saltMaster_speed_high')) || 0
-    };
+function solubilityWhy(s) {
+  if (s.cat === "Na" || s.cat === "K" || s.cat === "NH4") return "All sodium, potassium and ammonium salts are soluble.";
+  if (s.an === "NO3") return "All nitrates are soluble.";
+  if (s.an === "Cl") return s.soluble ? "Chlorides are soluble, except silver and lead(II) chloride." : "Chlorides are soluble EXCEPT silver chloride and lead(II) chloride.";
+  if (s.an === "SO4") return s.soluble ? "Sulfates are soluble, except barium, calcium and lead(II) sulfate." : "Sulfates are soluble EXCEPT barium, calcium and lead(II) sulfate.";
+  if (s.an === "CO3") return "Carbonates are insoluble, except sodium, potassium and ammonium carbonate.";
+  if (s.an === "I" || s.an === "Br") return "Silver and lead(II) bromides and iodides are insoluble.";
+  return "";
+}
 
-    const musicClassic = document.getElementById('bg-music-classic');
-    const musicSpeed = document.getElementById('bg-music-speed');
-    const musicToggleBtn = document.getElementById('music-toggle');
+/* =================== REAGENTS ===================
+   g: acid | alkali (solutions of bases & soluble carbonates) | solid (insoluble metals, oxides, carbonates) | salt (salt solutions) */
+var REAGENTS = [
+  ["hydrochloric acid", "acid", null, "Cl"], ["sulfuric acid", "acid", null, "SO4"], ["nitric acid", "acid", null, "NO3"],
+  ["sodium hydroxide", "alkali", "Na"], ["potassium hydroxide", "alkali", "K"], ["ammonia solution", "alkali", "NH4"],
+  ["sodium carbonate", "alkali", "Na", "CO3"], ["potassium carbonate", "alkali", "K", "CO3"],
+  ["magnesium ribbon", "solid", "Mg"], ["magnesium oxide", "solid", "Mg"], ["magnesium carbonate", "solid", "Mg"],
+  ["zinc metal", "solid", "Zn"], ["zinc oxide", "solid", "Zn"], ["zinc carbonate", "solid", "Zn"],
+  ["copper(II) oxide", "solid", "Cu"], ["copper(II) carbonate", "solid", "Cu"], ["calcium carbonate", "solid", "Ca"],
+  ["silver oxide", "solid", "Ag"], ["barium carbonate", "solid", "Ba"],
+  ["lead(II) nitrate", "salt", "Pb", "NO3"], ["barium nitrate", "salt", "Ba", "NO3"], ["silver nitrate", "salt", "Ag", "NO3"], ["calcium nitrate", "salt", "Ca", "NO3"],
+  ["sodium sulfate", "salt", "Na", "SO4"], ["potassium sulfate", "salt", "K", "SO4"], ["magnesium sulfate", "salt", "Mg", "SO4"],
+  ["sodium chloride", "salt", "Na", "Cl"], ["sodium bromide", "salt", "Na", "Br"], ["potassium iodide", "salt", "K", "I"]
+].map(function (r) { return { name: r[0], g: r[1], cat: r[2] || null, an: r[3] || null }; });
+var RGROUPS = [["acid", "Acids"], ["alkali", "Alkalis & soluble carbonates (solutions)"], ["solid", "Metals, oxides & insoluble carbonates (solids)"], ["salt", "Salt solutions"]];
+var R = {}; REAGENTS.forEach(function (r) { R[r.name] = r; });
 
-    function updateHighScoreDisplay() {
-        document.getElementById('classic-high-score').innerText = `High Score: ${highScores.classic}`;
-        document.getElementById('speed-high-score').innerText = `High Score: ${highScores.speed}`;
-    }
+// Is this pair of reagents a correct way to make salt s?
+function pairOK(s, a, b) {
+  function one(x, y) {
+    if (s.method === "precipitation") return x.g === "salt" && x.cat === s.cat && (y.g === "salt" || y.g === "acid" || y.g === "alkali") && y.an === s.an;
+    if (s.method === "titration") return x.g === "acid" && x.an === s.an && y.g === "alkali" && y.cat === s.cat;
+    return x.g === "acid" && x.an === s.an && y.g === "solid" && y.cat === s.cat;
+  }
+  return a !== b && (one(a, b) || one(b, a));
+}
+function validPairs(s) {
+  var out = [];
+  REAGENTS.forEach(function (a, i) { REAGENTS.forEach(function (b, j) {
+    if (j <= i || !pairOK(s, a, b)) return;
+    var aFirst = s.method === "precipitation" ? (a.g === "salt" && a.cat === s.cat) : a.g === "acid";
+    out.push(aFirst ? [a.name, b.name] : [b.name, a.name]);
+  }); });
+  return out;
+}
+function pairsText(s) {
+  var p = validPairs(s), byFirst = {};
+  p.forEach(function (x) { (byFirst[x[0]] = byFirst[x[0]] || []).push(x[1]); });
+  return Object.keys(byFirst).map(function (k) { return k + " + " + byFirst[k].join(" or "); }).join("; or ");
+}
+SALTS.forEach(function (s) { s.pairs = validPairs(s); });
 
-    function toggleHint() {
-        const box = document.getElementById('hint-box');
-        if (box.style.display === 'block') {
-            box.style.display = 'none';
-        } else {
-            let msg = "";
-            if (step === 1) {
-                msg = `This is a ${activeSalt.type} salt.`;
-            } else {
-                if (activeSalt.method === "titration") msg = "Consider which acid and which alkali/carbonate solution can be used.";
-                else if (activeSalt.method === "excess solid to acid") msg = "Consider which acid and which metal / base/ carbonate can be used.";
-                else msg = "Consider which two aqueous solutions can add together to precipitate this salt.";
-            }
-            box.innerText = msg;
-            box.style.display = 'block';
-        }
-    }
+/* =================== PROCEDURE STEPS =================== */
+function procedure(s) {
+  var p = s.pairs[0], a = p[0], b = p[1];
+  if (s.method === "titration") return {
+    steps: ["Titrate " + a + " with " + b + " using an indicator, to find the volumes that react exactly",
+      "Repeat with the same volumes, but without the indicator",
+      "Heat the solution to evaporate water until it is saturated",
+      "Leave the saturated solution to cool so crystals form",
+      "Filter, wash the crystals with a little cold distilled water and dry them between filter paper"],
+    wrong: "Add excess " + b + ", then filter off the excess",
+    wrongTip: "You can't filter off excess of a solution. That's why titration is used to get the exact amounts.",
+    orderTip: "Titrate first, repeat without indicator, then heat to saturation, cool, filter and dry." };
+  if (s.method === "excess solid to acid") return {
+    steps: ["Add " + b + " to warm " + a + ", stirring, until it is in excess (no more dissolves)",
+      "Filter to remove the excess " + b.replace(/ metal| ribbon/, ""),
+      "Heat the filtrate to evaporate water until it is saturated",
+      "Leave the saturated solution to cool so crystals form",
+      "Filter, wash the crystals with a little cold distilled water and dry them between filter paper"],
+    wrong: "Add an indicator to find the end point",
+    wrongTip: "No indicator needed: leftover solid shows that all the acid has reacted.",
+    orderTip: "Add excess solid, filter off the excess, then heat the filtrate to saturation, cool, filter and dry." };
+  return {
+    steps: ["Mix aqueous " + a + " with aqueous " + b,
+      "Filter the mixture to collect the precipitate (residue)",
+      "Wash the residue with distilled water to remove soluble impurities",
+      "Dry the residue between filter paper"],
+    wrong: "Heat the filtrate until saturated, then cool to form crystals",
+    wrongTip: "The insoluble salt is the residue left in the filter paper, not in the filtrate.",
+    orderTip: "Mix, filter, wash the residue, then dry it." };
+}
 
-    function handleMusicToggleRequest() {
-        isMusicEnabled = !isMusicEnabled;
-        updateMusic();
-    }
+/* =================== DIAGNOSIS =================== */
+var ERR = {
+  solubility:   { label: "Solubility rules", tip: "Learn the rules: Na, K, NH₄ salts and nitrates are soluble; AgCl, PbCl₂; BaSO₄, CaSO₄, PbSO₄; most carbonates are insoluble." },
+  spa:          { label: "Spotting sodium, potassium and ammonium salts", tip: "If the salt contains Na, K or NH₄, it is made by titration." },
+  methodInsol:  { label: "Didn't use precipitation for an insoluble salt", tip: "Insoluble salt → precipitation: mix two solutions and collect the precipitate." },
+  methodSPA:    { label: "Didn't use titration for a Na, K or NH₄ salt", tip: "Soluble Na, K, NH₄ salts → titration of an acid with an alkali or soluble carbonate." },
+  methodOther:  { label: "Didn't use excess solid for other soluble salts", tip: "Other soluble salts → add an excess of an insoluble metal, base or carbonate to acid, then filter off the excess." },
+  precipSolid:  { label: "Used a solid in precipitation", tip: "Precipitation needs two SOLUTIONS: one with the metal ion, one with the non-metal ion." },
+  excessSoluble:{ label: "Used a soluble base in the excess method", tip: "The excess must be an insoluble solid so it can be filtered off." },
+  titrSolid:    { label: "Used a solid in titration", tip: "Titration needs two solutions: an acid and an alkali or soluble carbonate." },
+  noCation:     { label: "Reagents don't contain the salt's metal (or ammonium)", tip: "One reagent must supply the metal part of the salt, e.g. copper(II) oxide for copper(II) sulfate." },
+  noAnion:      { label: "Reagents don't contain the salt's non-metal part", tip: "Match the acid or solution to the salt: chloride ← hydrochloric acid, sulfate ← sulfuric acid, nitrate ← nitric acid." },
+  reagentOther: { label: "Reagents can't make this salt", tip: "Check: one reagent gives the metal part, the other gives the non-metal part, in the right form for the method." },
+  orderWrong:   { label: "Procedure steps in the wrong order", tip: "Filter before you heat in the excess method; wash and dry the residue in precipitation." },
+  orderExtra:   { label: "Added a step that doesn't belong", tip: "Each method has its own key steps; check which product you collect (residue or crystals from the filtrate)." },
+  timeout:      { label: "Ran out of time", tip: "Start with: soluble or insoluble? Then: Na, K or NH₄? That gives the method." }
+};
+function methodErr(s) { return s.type === "insoluble" ? "methodInsol" : s.type === "SPA" ? "methodSPA" : "methodOther"; }
+function diagnoseReagents(s, a, b) {
+  if (pairOK(s, a, b)) return null;
+  var both = [a, b];
+  if (s.method === "precipitation" && both.some(function (x) { return x.g === "solid"; })) return "precipSolid";
+  if (s.method === "excess solid to acid" && both.some(function (x) { return x.g === "alkali"; })) return "excessSoluble";
+  if (s.method === "titration" && both.some(function (x) { return x.g === "solid"; })) return "titrSolid";
+  if (!both.some(function (x) { return x.cat === s.cat; })) return "noCation";
+  if (!both.some(function (x) { return x.an === s.an; })) return "noAnion";
+  return "reagentOther";
+}
 
-    function updateMusic() {
-        musicClassic.pause();
-        musicSpeed.pause();
+/* =================== HELPERS =================== */
+var $ = function (id) { return document.getElementById(id); };
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function fx(f) { return esc(f).replace(/([A-Za-z\)])(\d+)/g, '$1<span class="sub">$2</span>'); }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem("sik:" + k)); localStorage.setItem("sik:" + k, JSON.stringify(v)); } catch (e) { return null; } }
+function mmss(s) { s = Math.round(s); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
 
-        if (isMusicEnabled) {
-            musicToggleBtn.innerText = "🔊 Music: On";
-            const target = (gameMode === 'speed') ? musicSpeed : musicClassic;
-            const playPromise = target.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(() => console.log("Music blocked."));
-            }
-        } else {
-            musicToggleBtn.innerText = "🔇 Music: Off";
-        }
-    }
+/* =================== SOUND & MUSIC =================== */
+var Sound = {
+  on: store("sfx") !== false, ctx: null,
+  tone: function (f, type, d, g, delay) {
+    if (!this.on) return;
+    try {
+      this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === "suspended") this.ctx.resume();
+      var t = this.ctx.currentTime + (delay || 0), o = this.ctx.createOscillator(), v = this.ctx.createGain();
+      o.type = type; o.frequency.setValueAtTime(f, t); v.gain.setValueAtTime(g, t); v.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(v); v.connect(this.ctx.destination); o.start(t); o.stop(t + d);
+    } catch (e) {}
+  },
+  tap: function () { this.tone(440, "sine", .05, .04); },
+  ok: function () { this.tone(660, "sine", .15, .18); this.tone(880, "sine", .25, .18, .08); },
+  no: function () { this.tone(220, "sawtooth", .2, .12); this.tone(110, "sawtooth", .35, .12, .05); },
+  end: function () { [523, 659, 784, 1047, 1319].forEach(function (n, i) { Sound.tone(n, "triangle", .35, .16, i * .09); }); }
+};
+var Music = {
+  on: store("music-saltprep") === true,   // off until a student turns it on
+  el: function () { return G && G.mode === "blitz" ? $("music-blitz") : $("music-master"); },
+  play: function () { this.stop(); if (!this.on || !G) return; try { var e = this.el(); e.volume = .25; var p = e.play(); if (p && p.catch) p.catch(function () {}); } catch (x) {} },
+  stop: function () { ["music-master", "music-blitz"].forEach(function (id) { try { $(id).pause(); } catch (x) {} }); }
+};
+function paintToggles() { $("btn-music").classList.toggle("off", !Music.on); $("btn-sound").classList.toggle("off", !Sound.on); }
+$("btn-music").addEventListener("click", function () { Music.on = !Music.on; store("music-saltprep", Music.on); paintToggles(); if (Music.on && !$("scr-play").hidden) Music.play(); else Music.stop(); });
+$("btn-sound").addEventListener("click", function () { Sound.on = !Sound.on; store("sfx", Sound.on); paintToggles(); });
+paintToggles();
+if (document.fullscreenEnabled) { $("btn-full").hidden = false; $("btn-full").addEventListener("click", function () { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(function () {}); }); }
 
-    function showBlitzFeedback(isCorrect, userChoice = "") {
-        const overlay = document.getElementById('speed-feedback-overlay');
-        const feedback = document.createElement('div');
-        
-        let content = '';
-        if (isCorrect) {
-            content = `<div class="blitz-feedback blitz-correct">✔ +10</div>`;
-        } else {
-            content = `<div class="blitz-feedback blitz-wrong">✘</div>
-                       <div class="blitz-info">Answer: ${activeSalt.method}</div>`;
-            mistakes.push({
-                salt: activeSalt.name,
-                wrong: userChoice,
-                correct: activeSalt.method
-            });
-        }
-        
-        feedback.innerHTML = content;
-        overlay.innerHTML = '';
-        overlay.appendChild(feedback);
-        
-        setTimeout(() => { feedback.remove(); }, 800);
-    }
+/* =================== START =================== */
+var G = null;
+function show(id) { ["scr-start", "scr-play", "scr-result"].forEach(function (s) { $(s).hidden = s !== id; }); window.scrollTo(0, 0); }
+(function () {
+  $("methods-strip").innerHTML = METHOD_ORDER.map(function (m) { return '<img src="' + METHODS[m] + '" alt="' + m + ' method">'; }).join("");
+  var sel = $("in-cls");
+  CLASSES.forEach(function (c) { var o = document.createElement("option"); o.textContent = c; sel.appendChild(o); });
+  var s = store("student") || {};
+  if (s.name) $("in-name").value = s.name;
+  if (s.cls && CLASSES.indexOf(s.cls) > -1) sel.value = s.cls;
+  if (s.reg) $("in-reg").value = s.reg;
+  paintBest();
+})();
+function paintBest() { $("best-master").textContent = "Best: " + (store("saltprep-best-master") || 0); $("best-blitz").textContent = "Best: " + (store("saltprep-best-blitz") || 0); }
+var lastMode = "master";
+Array.prototype.forEach.call(document.querySelectorAll("#form-start [data-mode]"), function (b) { b.addEventListener("click", function () { lastMode = b.dataset.mode; }); });
+$("form-start").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var mode = (e.submitter && e.submitter.dataset.mode) || lastMode;
+  var name = $("in-name").value.trim(), cls = $("in-cls").value, reg = $("in-reg").value.trim();
+  var err = !name ? "Please type your name." : !cls ? "Please choose your class." : !/^\d{1,2}$/.test(reg) ? "Please type your register number (numbers only)." : "";
+  $("form-err").textContent = err; if (err) return;
+  store("student", { name: name, cls: cls, reg: reg });
+  Sound.tone(1, "sine", .01, .0001);
+  startGame(mode, { name: name, cls: cls, reg: reg });
+});
 
-    function startChallenge(mode) {
-        gameMode = mode; currentIdx = 0; score = 0; mistakes = [];
-        document.getElementById('home-screen').style.display = 'none';
-        document.getElementById('game-ui').style.display = 'block';
-        document.getElementById('score-display').innerText = `Score: 0`;
-        
-        updateMusic();
+function startGame(mode, student) {
+  G = { mode: mode, student: student, points: 0, streak: 0, bestStreak: 0, lives: LIVES, n: 0, log: [], hints: 0,
+        queue: shuffle(SALTS), startedAt: Date.now(), busy: false, timer: null };
+  show("scr-play"); Music.play();
+  $("hud-lives").hidden = mode !== "master";
+  $("hud-time").hidden = mode !== "blitz";
+  $("steps").hidden = mode !== "master";
+  if (mode === "blitz") startBlitzTimer();
+  nextSalt();
+}
+function nextSalt() {
+  if (G.mode === "master" && (G.n >= MASTER_SALTS || G.lives <= 0)) { finish(); return; }
+  if (!G.queue.length) G.queue = shuffle(SALTS);
+  G.s = G.queue.pop(); G.n++;
+  G.rec = { s: G.s, steps: {}, errs: [], picks: {} };
+  $("salt-name").textContent = cap(G.s.name); $("salt-fml").innerHTML = fx(G.s.f);
+  $("salt-method-img").hidden = true;
+  $("hint-box").hidden = true;
+  paintHud();
+  if (G.mode === "blitz") stepMethod();
+  else { G.plan = G.s.soluble ? ["sol", "spa", "method", "reagents", "order"] : ["sol", "method", "reagents", "order"]; G.si = 0; runStep(); }
+}
+function paintHud() {
+  $("txt-points").textContent = G.points;
+  $("txt-count").textContent = G.mode === "master" ? "Salt " + G.n + "/" + MASTER_SALTS : "Salt " + G.n;
+  var c = $("txt-combo"); c.hidden = G.streak < 2; if (G.streak >= 2) c.textContent = Math.min(G.streak, 3) + "× combo";
+  var h = ""; for (var i = 0; i < LIVES; i++) h += '<svg viewBox="0 0 24 24"><use href="#heart" fill="' + (i < G.lives ? "#FF8243" : "#FFFFFF") + '" stroke="#1F2A2E" stroke-width="2"/></svg>';
+  $("hearts").innerHTML = h; $("hearts").setAttribute("aria-label", G.lives + " lives left");
+  if (G.mode === "master" && G.plan) {
+    var names = { sol: "Soluble?", spa: "Na/K/NH₄?", method: "Method", reagents: "Reagents", order: "Steps" };
+    $("steps").innerHTML = ["sol", "spa", "method", "reagents", "order"].map(function (k) {
+      var cls = G.plan.indexOf(k) < 0 ? "skip" : G.rec.steps[k] === true ? "ok" : G.rec.steps[k] === false ? "no" : G.plan[G.si] === k ? "now" : "";
+      return '<span class="' + cls + '">' + names[k] + "</span>";
+    }).join("");
+  }
+}
+function setStage(html) { $("stage").innerHTML = html; $("stage").hidden = false; $("fb").hidden = true; $("flash").hidden = true; }
+function revealMethod() { var img = $("salt-method-img"); img.src = METHODS[G.s.method]; img.alt = G.s.method + " method"; img.hidden = false; }
 
-        if (mode === 'speed') {
-            document.getElementById('timer-wrapper').style.display = 'block';
-            startTimer();
-        } else {
-            document.getElementById('timer-wrapper').style.display = 'none';
-        }
-        initReagents();
-        nextQuestion();
-    }
+/* =================== MASTER STEPS =================== */
+function runStep() {
+  paintHud(); $("hint-box").hidden = true;
+  var k = G.plan[G.si];
+  if (k === "sol") return stepTwo("Is " + esc(G.s.name) + " soluble in water?", ["Soluble", "Insoluble"], ["", ""], function (i) { return (i === 0) === G.s.soluble; }, "solubility",
+    function () { return G.s.why; });
+  if (k === "spa") return stepTwo("Is it a sodium, potassium or ammonium salt?", ["Yes", "No"], ["Na, K or NH₄", "Another metal"], function (i) { return (i === 0) === G.s.spa; }, "spa",
+    function () { return G.s.spa ? "It contains " + ({ Na: "sodium", K: "potassium", NH4: "ammonium" })[G.s.cat] + ", so it's made by titration." : "It's a soluble salt of " + G.s.name.split(" ")[0] + ", not Na, K or NH₄."; });
+  if (k === "method") return stepMethod();
+  if (k === "reagents") return stepReagents();
+  if (k === "order") return stepOrder();
+}
+function stepTwo(q, labels, subs, isRight, errKey, explain) {
+  setStage('<p class="ask">' + q + '</p><div class="two" style="margin-top:12px">' + labels.map(function (l, i) {
+    return '<button class="choice" type="button" data-i="' + i + '">' + esc(l) + (subs[i] ? "<small>" + esc(subs[i]) + "</small>" : "") + "</button>"; }).join("") + "</div>");
+  G.busy = false;
+  Array.prototype.forEach.call(document.querySelectorAll("#stage .choice"), function (b) {
+    b.addEventListener("click", function () {
+      if (G.busy) return; G.busy = true;
+      var ok = isRight(+b.dataset.i);
+      b.classList.add(ok ? "right" : "wrong");
+      G.rec.picks[G.plan[G.si]] = b.textContent;
+      stepResult(ok, errKey, ok ? "" : '<p class="why">' + esc(explain()) + "</p>", ok ? null : "Not quite");
+    });
+  });
+}
+function stepMethod() {
+  setStage('<p class="ask">Which method should you use?</p><div class="methods" style="margin-top:12px">' + METHOD_ORDER.map(function (m) {
+    return '<button class="method" type="button" data-m="' + m + '"><img src="' + METHODS[m] + '" alt=""><span>' + m + "</span></button>"; }).join("") + "</div>");
+  G.busy = false;
+  Array.prototype.forEach.call(document.querySelectorAll("#stage .method"), function (b) {
+    b.addEventListener("click", function () {
+      if (G.busy) return; G.busy = true;
+      var m = b.dataset.m, ok = m === G.s.method;
+      Array.prototype.forEach.call(document.querySelectorAll("#stage .method"), function (x) { x.classList.add(x.dataset.m === G.s.method ? "right" : "wrong"); });
+      G.rec.picks.method = m;
+      if (G.mode === "blitz") return blitzResult(ok, m);
+      revealMethod();
+      var why = { "insoluble": "It's insoluble, so make it by precipitation.", "SPA": "It's a soluble sodium, potassium or ammonium salt, so use titration.", "soluble non-SPA": "It's soluble but not a Na, K or NH₄ salt, so add excess solid to acid." }[G.s.type];
+      stepResult(ok, methodErr(G.s), ok ? "" : '<p class="why">' + esc(why) + "</p>", ok ? null : "Not quite. Use " + G.s.method);
+    });
+  });
+}
+function stepReagents() {
+  G.pick = [];
+  var html = '<p class="ask">Choose the two reagents</p><div class="picked" id="picked"><span class="ph">Tap two reagents below</span></div><div class="rgroups">' +
+    RGROUPS.map(function (g) {
+      return '<div class="rgroup"><h4>' + g[1] + '</h4><div class="chips">' + REAGENTS.filter(function (r) { return r.g === g[0]; }).map(function (r) {
+        return '<button class="chip" type="button" aria-pressed="false" data-r="' + esc(r.name) + '">' + esc(r.name) + "</button>"; }).join("") + "</div></div>";
+    }).join("") + '</div><button class="btn big" id="btn-rcheck" type="button" disabled>Check reagents</button>';
+  setStage(html); G.busy = false;
+  Array.prototype.forEach.call(document.querySelectorAll("#stage .chip"), function (b) {
+    b.addEventListener("click", function () {
+      if (G.busy) return; Sound.tap();
+      var n = b.dataset.r, i = G.pick.indexOf(n);
+      if (i > -1) G.pick.splice(i, 1); else { if (G.pick.length === 2) { var old = G.pick.shift(); var ob = document.querySelector('#stage .chip[data-r="' + CSS.escape(old) + '"]'); if (ob) ob.setAttribute("aria-pressed", "false"); } G.pick.push(n); }
+      b.setAttribute("aria-pressed", G.pick.indexOf(n) > -1 ? "true" : "false");
+      $("picked").innerHTML = G.pick.length ? G.pick.map(esc).join(" <span>+</span> ") : '<span class="ph">Tap two reagents below</span>';
+      $("btn-rcheck").disabled = G.pick.length !== 2;
+    });
+  });
+  $("btn-rcheck").addEventListener("click", function () {
+    if (G.busy || G.pick.length !== 2) return; G.busy = true;
+    var a = R[G.pick[0]], b = R[G.pick[1]], err = diagnoseReagents(G.s, a, b), ok = !err;
+    G.rec.picks.reagents = G.pick.join(" + ");
+    Array.prototype.forEach.call(document.querySelectorAll("#stage .chip[aria-pressed=true]"), function (x) { x.classList.add(ok ? "right" : "wrong"); });
+    stepResult(ok, err, ok ? "" : '<p>Correct reagents: <b>' + esc(pairsText(G.s)) + '</b></p><p class="why">' + esc(ERR[err].tip) + "</p>", ok ? null : "Those reagents won't work");
+  });
+}
+function stepOrder() {
+  var P = procedure(G.s);
+  G.proc = P; G.orderPicked = [];
+  var cards = shuffle(P.steps.map(function (t, i) { return { t: t, i: i }; }).concat([{ t: P.wrong, i: -1 }]));
+  G.orderCards = cards;
+  var html = '<p class="ask">Put the steps in order. One step doesn\'t belong!</p>' +
+    '<div class="order-list" id="olist"><div class="order-empty">Tap the steps below in order (' + P.steps.length + ' steps)</div></div>' +
+    '<div class="order-pool" id="opool">' + cards.map(function (c, k) { return '<button class="ostep" type="button" data-k="' + k + '"><span class="n">?</span><span>' + esc(c.t) + "</span></button>"; }).join("") + "</div>" +
+    '<div class="btn-row"><button class="btn alt" id="btn-oreset" type="button">Reset</button><button class="btn" id="btn-ocheck" type="button" disabled>Check order</button></div>';
+  setStage(html); G.busy = false;
+  Array.prototype.forEach.call(document.querySelectorAll("#opool .ostep"), function (b) {
+    b.addEventListener("click", function () {
+      if (G.busy || b.classList.contains("used") || G.orderPicked.length >= P.steps.length) return; Sound.tap();
+      G.orderPicked.push(+b.dataset.k); b.classList.add("used"); paintOrder();
+    });
+  });
+  $("btn-oreset").addEventListener("click", function () { if (G.busy) return; G.orderPicked = []; Array.prototype.forEach.call(document.querySelectorAll("#opool .ostep"), function (b) { b.classList.remove("used"); }); paintOrder(); });
+  $("btn-ocheck").addEventListener("click", checkOrder);
+}
+function paintOrder() {
+  var P = G.proc, list = $("olist");
+  list.innerHTML = G.orderPicked.length ? G.orderPicked.map(function (k, n) { return '<div class="ostep" data-k="' + k + '"><span class="n">' + (n + 1) + "</span><span>" + esc(G.orderCards[k].t) + "</span></div>"; }).join("")
+    : '<div class="order-empty">Tap the steps below in order (' + P.steps.length + " steps)</div>";
+  $("btn-ocheck").disabled = G.orderPicked.length !== P.steps.length;
+}
+function checkOrder() {
+  if (G.busy) return; G.busy = true;
+  var P = G.proc, seq = G.orderPicked.map(function (k) { return G.orderCards[k].i; });
+  var extra = seq.indexOf(-1) > -1, ok = !extra && seq.every(function (v, n) { return v === n; });
+  Array.prototype.forEach.call(document.querySelectorAll("#olist .ostep"), function (el, n) { el.classList.add(seq[n] === n ? "right" : "wrong"); });
+  G.rec.picks.order = extra ? "added the step that doesn't belong" : "put steps as " + seq.map(function (v) { return v + 1; }).join("-");
+  var body = ok ? "" : (extra ? '<p class="why">“' + esc(P.wrong) + '” doesn\'t belong. ' + esc(P.wrongTip) + "</p>" : '<p class="why">' + esc(P.orderTip) + "</p>") +
+    "<p>Correct order:</p><ol>" + P.steps.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ol>";
+  stepResult(ok, extra ? "orderExtra" : "orderWrong", body, ok ? null : "Not the right order");
+}
 
-    function initReagents() {
-        const s1 = document.getElementById('r1'), s2 = document.getElementById('r2');
-        s1.innerHTML = s2.innerHTML = "";
-        reagentOptions.forEach(opt => { s1.add(new Option(opt, opt)); s2.add(new Option(opt, opt)); });
-    }
+function stepResult(ok, errKey, bodyHtml, title) {
+  var k = G.plan[G.si];
+  G.rec.steps[k] = ok;
+  if (ok) { G.points += 20; Sound.ok(); }
+  else { G.rec.errs.push(errKey); Sound.no(); if (k !== "method") revealMethodIfPast(); }
+  paintHud();
+  var last = G.si === G.plan.length - 1;
+  if (ok && !last) { flash("✓ Correct! +20"); setTimeout(function () { G.si++; runStep(); }, 650); return; }
+  if (ok && last) { finishSalt(); return; }
+  feedback(false, title, bodyHtml, last ? "Next salt →" : "Continue →", function () { if (last) finishSalt(true); else { G.si++; runStep(); } });
+}
+function revealMethodIfPast() { if (G.plan.indexOf("method") <= G.si) revealMethod(); }
+function finishSalt(afterFeedback) {
+  var allOk = G.rec.errs.length === 0, gained = 0;
+  if (allOk) { G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak); gained = 60 * Math.min(G.streak, 3); G.points += gained; }
+  else { G.streak = 0; G.lives--; }
+  G.rec.ok = allOk; G.log.push(G.rec);
+  paintHud();
+  if (!allOk) { var hs = $("hearts").children; if (hs[G.lives]) hs[G.lives].classList.add("lost"); }
+  if (allOk) { Sound.ok(); flash("🧂 Salt made! +" + (20 + gained) + (G.streak >= 2 ? " · " + Math.min(G.streak, 3) + "× combo" : "")); setTimeout(nextSalt, 1100); }
+  else if (G.lives <= 0) { flash("Out of lives!"); setTimeout(finish, 1100); }
+  else if (afterFeedback) nextSalt();
+  else { flash("Salt done, but with a mistake: −1 life"); setTimeout(nextSalt, 1300); }
+}
+function feedback(ok, title, bodyHtml, btn, onNext) {
+  $("stage").hidden = true; $("flash").hidden = true;
+  var fb = $("fb"); fb.className = "feedback " + (ok ? "ok" : "no");
+  $("fb-title").textContent = title; $("fb-body").innerHTML = bodyHtml;
+  $("btn-next").textContent = btn; $("btn-next").onclick = onNext;
+  fb.hidden = false; $("btn-next").focus({ preventScroll: true });
+  fb.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+function flash(t) { $("stage").hidden = true; $("fb").hidden = true; var f = $("flash"); f.textContent = t; f.hidden = false; }
 
-    function startTimer() {
-        timeLeft = 60;
-        timerId = setInterval(() => {
-            timeLeft -= 0.1;
-            document.getElementById('timer-bar').style.width = (timeLeft / 60) * 100 + "%";
-            if (timeLeft <= 0) { 
-                clearInterval(timerId); 
-                showEndScreen(); 
-            }
-        }, 100);
-    }
+/* hint */
+$("btn-hint").addEventListener("click", function () {
+  if (!G || G.mode !== "master") return;
+  var k = G.plan[G.si], s = G.s, msg;
+  if (k === "sol") msg = "Check the solubility rules for " + (s.an === "NO3" ? "nitrates" : s.an === "SO4" ? "sulfates" : s.an === "Cl" ? "chlorides" : s.an === "CO3" ? "carbonates" : "bromides and iodides") + " and for Na, K, NH₄ salts.";
+  else if (k === "spa") msg = "Look at the first word of the salt's name.";
+  else if (k === "method") msg = "This is a " + (s.type === "SPA" ? "soluble Na, K or NH₄" : s.type) + " salt.";
+  else if (k === "reagents") msg = s.method === "titration" ? "Which acid and which alkali or soluble carbonate solution?" : s.method === "excess solid to acid" ? "Which acid, and which insoluble metal, oxide or carbonate?" : "Which two solutions: one with " + s.name.split(" ")[0] + " ions, one with the " + s.name.split(" ").slice(-1)[0] + " ions?";
+  else msg = s.method === "precipitation" ? "You want the residue, not crystals from the filtrate." : "Remember: you have to make a saturated solution before cooling.";
+  var hb = $("hint-box"); if (!hb.hidden) { hb.hidden = true; return; }
+  hb.textContent = "💡 " + msg; hb.hidden = false; G.hints++; G.rec.hint = true;
+});
 
-    function nextQuestion() {
-        if (gameMode === 'classic' && currentIdx >= 10) { showEndScreen(); return; }
-        
-        // Reset dropdowns to first option
-        document.getElementById('r1').selectedIndex = 0;
-        document.getElementById('r2').selectedIndex = 0;
-        document.getElementById('confirm-reagents-btn').disabled = false;
+/* =================== SPEED BLITZ =================== */
+function startBlitzTimer() {
+  var t0 = performance.now(), bar = $("bar-time"), txt = $("txt-secs"), last = -1;
+  (function frame(now) {
+    now = now || performance.now();
+    var left = Math.max(0, BLITZ_SECONDS - (now - t0) / 1000);
+    bar.style.width = (left / BLITZ_SECONDS * 100) + "%"; bar.classList.toggle("warn", left <= 10);
+    var s = Math.ceil(left); if (s !== last) { txt.textContent = s + "s"; last = s; }
+    if (left <= 0) { G.busy = true; finish(); return; }
+    G.timer = requestAnimationFrame(frame);
+  })();
+}
+function blitzResult(ok, picked) {
+  var gained = 0;
+  if (ok) { G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak); gained = 10 * Math.min(G.streak, 3); G.points += gained; Sound.ok(); }
+  else { G.streak = 0; Sound.no(); }
+  G.log.push({ s: G.s, ok: ok, picks: { method: picked }, errs: ok ? [] : [methodErr(G.s)], steps: { method: ok } });
+  paintHud();
+  var el = document.createElement("div"); el.className = "blitz-fb " + (ok ? "ok" : "no");
+  el.innerHTML = ok ? "✓ +" + gained : "✗ " + esc(cap(G.s.name)) + ": <b>" + esc(G.s.method) + "</b>";
+  document.body.appendChild(el); setTimeout(function () { el.remove(); }, ok ? 900 : 1400);
+  setTimeout(function () { if (G.mode === "blitz" && !$("scr-play").hidden) nextSalt(); }, ok ? 350 : 900);
+}
 
-        activeSalt = saltsPool[Math.floor(Math.random() * saltsPool.length)];
-        currentIdx++; step = 1;
-        document.getElementById('stat-left').innerText = gameMode === 'classic' ? `Question: ${currentIdx}/10` : "Speed Blitz!";
-        document.getElementById('salt-name').innerText = activeSalt.name;
-        document.getElementById('salt-formula').innerText = activeSalt.formula;
-        document.getElementById('feedback').style.display = 'none';
-        document.getElementById('next-btn').style.display = 'none';
-        document.getElementById('hint-box').style.display = 'none';
-        document.getElementById('method-selection-view').style.display = 'block';
-        document.getElementById('master-reagent-view').style.display = 'none';
-    }
+/* =================== RESULTS =================== */
+function finish() {
+  if (G.done) return; G.done = true;
+  cancelAnimationFrame(G.timer); Music.stop();
+  var log = G.log, saltsOk = log.filter(function (x) { return x.ok; }).length, total = log.length;
+  var stepN = 0, stepOk = 0, byStep = {}, byType = {}, errCount = {};
+  log.forEach(function (x) {
+    Object.keys(x.steps).forEach(function (k) { stepN++; if (x.steps[k]) stepOk++; var b = byStep[k] = byStep[k] || [0, 0]; b[1]++; if (x.steps[k]) b[0]++; });
+    var t = byType[x.s.type] = byType[x.s.type] || [0, 0]; t[1]++; if (x.ok) t[0]++;
+    x.errs.forEach(function (e) { errCount[e] = (errCount[e] || 0) + 1; });
+  });
+  var errs = Object.keys(errCount).sort(function (a, b) { return errCount[b] - errCount[a]; });
+  var pct = total ? Math.round(100 * saltsOk / total) : 0, stepPct = stepN ? Math.round(100 * stepOk / stepN) : 0;
+  var secs = (Date.now() - G.startedAt) / 1000;
+  var bestKey = "saltprep-best-" + G.mode; if (G.points > (store(bestKey) || 0)) store(bestKey, G.points);
 
-    function handleMethodSelection(method) {
-        if (method === activeSalt.method) {
-            if (gameMode === 'speed') {
-                score += 10; document.getElementById('score-display').innerText = `Score: ${score}`;
-                showBlitzFeedback(true);
-                nextQuestion();
-            } else {
-                step = 2;
-                document.getElementById('step2-method-img').src = methodAssets[method];
-                document.getElementById('step2-method-name').innerText = method;
-                document.getElementById('method-selection-view').style.display = 'none';
-                document.getElementById('master-reagent-view').style.display = 'grid';
-                document.getElementById('hint-box').style.display = 'none';
-            }
-        } else {
-            if (gameMode === 'speed') {
-                showBlitzFeedback(false, method);
-                nextQuestion();
-            } else {
-                mistakes.push({
-                    salt: activeSalt.name,
-                    wrong: method,
-                    correct: activeSalt.method
-                });
-                document.getElementById('feedback').innerText = `Wrong. Correct: ${activeSalt.method}`;
-                document.getElementById('feedback').className = 'wrong';
-                document.getElementById('feedback').style.display = 'block';
-                
-                // For a wrong method choice in Classic, show it for 2s then move on
-                setTimeout(() => {
-                    nextQuestion();
-                }, 2000);
-            }
-        }
-    }
+  $("res-ring").style.setProperty("--p", pct); $("res-pct").textContent = pct + "%";
+  $("res-l1").textContent = G.mode === "master" ? "Salts fully correct" : "Methods correct";
+  $("res-correct").textContent = saltsOk + "/" + total;
+  $("res-l2").textContent = G.mode === "master" ? "Steps correct" : "Best combo";
+  $("res-steps").textContent = G.mode === "master" ? stepPct + "%" : G.bestStreak;
+  $("res-time").textContent = mmss(secs); $("res-points").textContent = G.points;
+  var first = G.student.name.split(" ")[0];
+  $("res-title").textContent = pct >= 80 ? "Salt Prep Master, " + first + "!" : pct >= 50 ? "Good work, " + first + "!" : "Keep practising, " + first + "!";
+  $("res-msg").textContent = G.mode === "master"
+    ? (G.lives <= 0 ? "You ran out of lives after " + total + " salts. " : "You finished all " + total + " salts. ") + "Best streak: " + G.bestStreak + "."
+    : "You answered " + total + " salts in " + BLITZ_SECONDS + " seconds.";
+  var rows = [];
+  if (G.mode === "master") [["sol", "Soluble or not"], ["spa", "Na/K/NH₄ salt?"], ["method", "Choosing the method"], ["reagents", "Choosing reagents"], ["order", "Order of steps"]].forEach(function (r) { if (byStep[r[0]]) rows.push([r[1], byStep[r[0]]]); });
+  ["insoluble", "SPA", "soluble non-SPA"].forEach(function (t) { if (byType[t]) rows.push([TYPE_NAMES[t], byType[t]]); });
+  $("res-bars").innerHTML = rows.map(function (r) { var p = Math.round(100 * r[1][0] / r[1][1]); return '<div class="bar-row"><span>' + r[0] + '</span><div class="bar"><i class="' + (p < 60 ? "low" : "") + '" style="width:' + p + '%"></i></div><span class="n">' + r[1][0] + "/" + r[1][1] + "</span></div>"; }).join("");
+  $("res-weak").innerHTML = errs.length ? errs.slice(0, 4).map(function (e) { return "<li><b>" + esc(ERR[e].label) + (errCount[e] > 1 ? " ×" + errCount[e] : "") + "</b><span>" + esc(ERR[e].tip) + "</span></li>"; }).join("")
+    : '<li class="good"><b>Nothing to fix this time!</b><span>Try to beat your points score.</span></li>';
+  var wrong = log.filter(function (x) { return !x.ok; });
+  $("res-review").innerHTML = wrong.length ? wrong.map(function (x) {
+    var parts = [];
+    if (x.steps.sol === false) parts.push("Said it was " + (x.s.soluble ? "insoluble" : "soluble") + ". " + x.s.why);
+    if (x.steps.spa === false) parts.push(x.s.spa ? "It is a Na, K or NH₄ salt." : "It's not a Na, K or NH₄ salt.");
+    if (x.steps.method === false) parts.push("Picked " + x.picks.method + "; use <b>" + x.s.method + "</b>.");
+    if (x.steps.reagents === false) parts.push("Picked " + esc(x.picks.reagents) + "; use " + esc(pairsText(x.s)) + ".");
+    if (x.steps.order === false) parts.push("Steps out of order.");
+    return "<li><b>" + esc(cap(x.s.name)) + '</b> <span class="you">✗</span><br>' + parts.join("<br>") + "</li>";
+  }).join("") : "<li>No mistakes. Well done!</li>";
+  show("scr-result"); Sound.end(); if (pct >= 80 && total >= 5) Confetti.go();
 
-    function submitReagents() {
-        const v1 = document.getElementById('r1').value, v2 = document.getElementById('r2').value;
-        const isCorrect = (activeSalt.r1.includes(v1) && activeSalt.r2.includes(v2)) || 
-                          (activeSalt.r1.includes(v2) && activeSalt.r2.includes(v1));
-        
-        document.getElementById('confirm-reagents-btn').disabled = true;
+  var stepWord = { sol: "solubility", spa: "Na/K/NH4", method: "method", reagents: "reagents", order: "order" };
+  var summary = (G.mode === "master" ? "Lives left: " + Math.max(0, G.lives) + " | Steps: " + Object.keys(byStep).map(function (k) { return stepWord[k] + " " + byStep[k][0] + "/" + byStep[k][1]; }).join(", ") + " | " : "") +
+    "By type: " + ["insoluble", "SPA", "soluble non-SPA"].filter(function (t) { return byType[t]; }).map(function (t) { return t + " " + byType[t][0] + "/" + byType[t][1]; }).join(", ") +
+    " | Errors: " + (errs.length ? errs.map(function (e) { return ERR[e].label.replace(/₄/g, "4") + " x" + errCount[e]; }).join("; ") : "none") +
+    (G.mode === "master" ? " | Hints used: " + G.hints : "") + " | Best streak: " + G.bestStreak;
+  var wrongTxt = wrong.map(function (x) {
+    return x.s.name + ": " + Object.keys(x.steps).filter(function (k) { return x.steps[k] === false; }).map(function (k) { return stepWord[k] + (x.picks[k] ? " (" + String(x.picks[k]).trim() + ")" : ""); }).join(", ");
+  }).join(" | ");
+  send({ course: SHEET_TAB, chapter: G.mode === "master" ? "Master Challenge" : "Speed Blitz", name: G.student.name, cls: G.student.cls, reg: G.student.reg,
+    score: saltsOk, total: total, wrong: wrongTxt || "None", time: Math.round(secs), points: G.points, summary: summary });
+}
+function send(payload) {
+  G.payload = payload;
+  var box = $("send"), msg = $("send-msg"), btn = $("btn-resend");
+  box.className = "send span"; btn.hidden = true; msg.textContent = "Sending your results to Ms Khoo…";
+  if (!SUBMIT_URL) { msg.textContent = "Results not sent (no Google Sheet link set up)."; return; }
+  fetch(SUBMIT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) })
+    .then(function () { msg.textContent = "✓ Sent! Ms Khoo has your results."; })
+    .catch(function () { box.className = "send span err"; msg.textContent = "Couldn't send. Check your internet, then tap Try again."; btn.hidden = false; });
+}
+$("btn-resend").addEventListener("click", function () { send(G.payload); });
+$("btn-again").addEventListener("click", function () { Confetti.stop(); startGame(G.mode, G.student); });
+$("btn-home").addEventListener("click", function () { Confetti.stop(); paintBest(); show("scr-start"); });
 
-        if (isCorrect) {
-            score += 10;
-        } else {
-            mistakes.push({
-                salt: activeSalt.name + " (Reagents)",
-                wrong: `${v1} + ${v2}`,
-                correct: `${activeSalt.r1[0]} + ${activeSalt.r2[0]}`
-            });
-        }
-        
-        document.getElementById('score-display').innerText = `Score: ${score}`;
-        document.getElementById('feedback').innerText = isCorrect ? "Correct!" : `Incorrect. Use ${activeSalt.r1[0]} and ${activeSalt.r2[0]}.`;
-        document.getElementById('feedback').className = isCorrect ? 'correct' : 'wrong';
-        document.getElementById('feedback').style.display = 'block';
-        
-        // Auto-move to next question after 2 seconds
-        setTimeout(() => {
-            nextQuestion();
-        }, 2000);
-    }
+/* =================== CONFETTI =================== */
+var Confetti = {
+  c: $("confetti"), on: false,
+  go: function () {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var c = this.c, w = c.width = innerWidth, h = c.height = innerHeight, cols = ["#FF8243", "#FFC0CB", "#FCE883", "#069494"], p = [];
+    c.hidden = false; this.on = true;
+    for (var i = 0; i < 110; i++) p.push({ x: Math.random() * w, y: -Math.random() * h, s: 6 + Math.random() * 8, v: 2 + Math.random() * 3, a: Math.random() * 6, col: cols[i % 4] });
+    var self = this, ctx = c.getContext("2d");
+    (function loop() {
+      if (!self.on) return; ctx.clearRect(0, 0, w, h); var alive = false;
+      p.forEach(function (q) { q.y += q.v; q.a += .08; q.x += Math.sin(q.a) * 1.2; if (q.y < h + 20) alive = true;
+        ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.a); ctx.fillStyle = q.col; ctx.strokeStyle = "#1F2A2E"; ctx.lineWidth = 1.5;
+        ctx.fillRect(-q.s / 2, -q.s / 4, q.s, q.s / 2); ctx.strokeRect(-q.s / 2, -q.s / 4, q.s, q.s / 2); ctx.restore(); });
+      if (alive) requestAnimationFrame(loop); else self.stop();
+    })();
+  },
+  stop: function () { this.on = false; this.c.hidden = true; }
+};
 
-    function showEndScreen() {
-        if (score > highScores[gameMode]) {
-            highScores[gameMode] = score;
-            localStorage.setItem(`saltMaster_${gameMode}_high`, score);
-            updateHighScoreDisplay();
-        }
-
-        document.getElementById('game-ui').style.display = 'none';
-        document.getElementById('summary-section').style.display = 'block';
-        document.getElementById('final-stats').innerText = `${score} points`;
-        
-        const errorSummary = document.getElementById('error-summary');
-        if (mistakes.length === 0) {
-            errorSummary.innerHTML = `<p style="text-align:center; color:var(--success); font-weight:800;">Perfect score! No mistakes made. 🎉</p>`;
-        } else {
-            errorSummary.innerHTML = mistakes.map(m => `
-                <div class="error-item">
-                    <span class="error-label">Salt: ${m.salt}</span>
-                    <span style="opacity:0.7">You picked: <span style="text-decoration:line-through">${m.wrong}</span></span><br>
-                    <span class="error-fix">Correct answer: ${m.correct}</span>
-                </div>
-            `).join('');
-        }
-
-        musicClassic.pause();
-        musicSpeed.pause();
-    }
-
-    function resetGame() {
-        document.getElementById('summary-section').style.display = 'none';
-        document.getElementById('home-screen').style.display = 'block';
-        updateMusic();
-    }
-
-    function toggleFullscreen() { 
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => {}); 
-        else document.exitFullscreen(); 
-    }
-
-    updateHighScoreDisplay();
-
-    document.addEventListener('click', () => {
-        if (isMusicEnabled) {
-             const target = (gameMode === 'speed') ? musicSpeed : musicClassic;
-             if (target.paused) target.play().catch(()=>{});
-        }
-    }, { once: false });
-
+window.__salt = { SALTS: SALTS, R: R, pairOK: pairOK, pairsText: pairsText, diagnoseReagents: diagnoseReagents, procedure: procedure, state: function () { return G; } };
+})();
 </script>
 </body>
 </html>
